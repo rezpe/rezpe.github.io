@@ -1,2 +1,49 @@
-Hello World Twice
+<style>
+@import "https://fonts.googleapis.com/css?family=Didact+Gothic";
+body {
+  margin: 0px;
+  padding: 0px;
+  font-size: 20px;
+  color: white;
+  font-family: "Didact Gothic", sans-serif;
+  background: linear-gradient(to bottom, #499bea 0%, #2041e3 100%);
+}
 
+.container {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-width: 960px;
+  height: 100vh;
+}
+.container nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0px;
+}
+.container nav .logo {
+  font-size: 30px;
+}
+.container .content {
+  display: flex;
+  justify-content: space-around;
+}
+.container .footer {
+  padding: 5px 0px;
+}
+
+</style>
+<div class="container">
+  <nav>
+    <div class="logo">Rezpe</div>
+    <div class="userTools">
+      <div class="link">Contact</div>
+    </div>
+  </nav>
+  <div class="content"></div>
+  <div class="footer">
+    <div class="copyright">© Rezpe 2016</div>
+  </div>
+</div>
