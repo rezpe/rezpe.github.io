@@ -1,49 +1,222 @@
-<style>
-@import "https://fonts.googleapis.com/css?family=Didact+Gothic";
-body {
-  margin: 0px;
-  padding: 0px;
-  font-size: 20px;
-  color: white;
-  font-family: "Didact Gothic", sans-serif;
-  background: linear-gradient(to bottom, #56ccf2, #2f80ed);
-}
+<!DOCTYPE html>
+<html lang="en">
 
-.container {
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  max-width: 960px;
-  height: 100vh;
-}
-.container nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px 0px;
-}
-.container nav .logo {
-  font-size: 30px;
-}
-.container .content {
-  display: flex;
-  justify-content: space-around;
-}
-.container .footer {
-  padding: 5px 0px;
-}
+  <head>
 
-</style>
-<div class="container">
-  <nav>
-    <div class="logo">Rezpe</div>
-    <div class="userTools">
-      <div class="link">Contact</div>
-    </div>
-  </nav>
-  <div class="content"></div>
-  <div class="footer">
-    <div class="copyright">© Rezpe 2018</div>
-  </div>
-</div>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Sebastien Perez Vasseur</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/grayscale.css" rel="stylesheet">
+
+  </head>
+
+  <body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+      <div class="container">
+        <a class="navbar-brand js-scroll-trigger" href="#page-top"></a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          Menu
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#projects">Projects</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="masthead">
+      <div class="container d-flex h-100 align-items-center">
+        <div class="mx-auto text-center">
+          <h1 class="mx-auto my-0 text-uppercase">Sebastien Perez Vasseur</h1>
+          <h2 class="text-white mx-auto mt-2 mb-5">Data Science and Visualization</h2>
+          <a href="#about" class="btn btn-primary js-scroll-trigger">More</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="about-section text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <h2 class="text-white mb-4">Hi, I'm Sebas</h2>
+            <p class="text-white">I'm a Data Scientist and Visualization expert at Amadeus. 
+              I also provide lectures on Data Science and Visualization on the Data Science Masters of Kschool 
+              and I am pursuing a phd on Artificial Intelligence in the UNED.<br/>
+            On top of my data Science work, I am really into User Interfaces and Design thinking.<br/>
+            I am also into Startups and new ways of working.</p>
+          </div>
+        </div>
+        <img src="img/sebas.png" class="img-fluid" alt="">
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects-section ">
+      <div class="container">
+
+        <!-- Featured Project Row -->
+        <div class="row align-items-center no-gutters mb-4 mb-lg-5 bg-white">
+          <div class="col-xl-8 col-lg-7">
+            <img class="img-fluid mb-3 mb-lg-0" src="img/projects/zonas_madrid.png" alt="">
+          </div>
+          <div class="col-xl-4 col-lg-5">
+            <div class="featured-text text-center text-lg-left">
+              <h4>Probabilistic Forecast of NO2</h4>
+              <p class="text-black-50 mb-0">Presentation of my thesis subject.
+                <a href="https://canal.uned.es/video/5b224cdeb1111fd5728b4567">More Info</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project One Row -->
+        <div class="row justify-content-center no-gutters mb-5 mb-lg-0">
+          <div class="col-lg-6">
+            <img class="img-fluid" src="img/projects/jupyterviz.png" alt="">
+          </div>
+          <div class="col-lg-6">
+            <div class="bg-black text-center h-100 project">
+              <div class="d-flex h-100">
+                <div class="project-text w-100 my-auto text-center text-lg-left">
+                  <h4 class="text-white">JupyterViz</h4>
+                  <p class="mb-0 text-white-50">A collection of javascript visualizations for Jupyter Notebooks.
+                    <a href="https://github.com/rezpe/JupyterViz">More Info</a>
+                  </p>
+                  <hr class="d-none d-lg-block mb-0 ml-0">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Two Row -->
+        <div class="row justify-content-center no-gutters">
+          <div class="col-lg-6">
+            <img class="img-fluid" src="https://farm9.staticflickr.com/8339/8223029608_248eef5f9d_z_d.jpg" alt="">
+          </div>
+          <div class="col-lg-6 order-lg-first">
+            <div class="bg-black text-center h-100 project">
+              <div class="d-flex h-100">
+                <div class="project-text w-100 my-auto text-center text-lg-right">
+                  <h4 class="text-white">Gateau.js</h4>
+                  <p class="mb-0 text-white-50">A tasty animation library for javascript.
+                    <a href="https://github.com/rezpe/Gateau.js">More Info</a>
+                  </p>
+                  <hr class="d-none d-lg-block mb-0 mr-0">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 3 Row -->
+        <div class="row justify-content-center no-gutters mb-5 mb-lg-0">
+            <div class="col-lg-6 bg-white">
+              <img class="img-fluid" src="img/projects/cusseg.png" alt="">
+            </div>
+            <div class="col-lg-6">
+              <div class="bg-black text-center h-100 project">
+                <div class="d-flex h-100">
+                  <div class="project-text w-100 my-auto text-center text-lg-left">
+                    <h4 class="text-white">Customer Segmentation Basics</h4>
+                    <p class="mb-0 text-white-50">A presentation with jupyter notebook showing a simple way to segment customers using machine learning.
+                      <a href="https://github.com/rezpe/CustomerSegmentationBasics">More Info</a>
+                    </p>
+                    <hr class="d-none d-lg-block mb-0 ml-0">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Project 4 Row -->
+        <div class="row justify-content-center no-gutters">
+            <div class="col-lg-6">
+              <img class="img-fluid" src="https://farm3.staticflickr.com/2113/2364430789_876d3b2755_z_d.jpg" alt="">
+            </div>
+            <div class="col-lg-6 order-lg-first">
+              <div class="bg-black text-center h-100 project">
+                <div class="d-flex h-100">
+                  <div class="project-text w-100 my-auto text-center text-lg-right">
+                    <h4 class="text-white">Drawr.js</h4>
+                    <p class="mb-0 text-white-50">A simple javascript library to draw on a canvas and obtain the coordinates of the drawing.
+                      <a href="https://github.com/rezpe/Drawr">More Info</a>
+                    </p>
+                    <hr class="d-none d-lg-block mb-0 mr-0">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      </div>
+    </section>
+
+
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+      <div class="container">
+
+        <div class="social d-flex justify-content-center">
+          <a href="https://twitter.com/perezvasseur" class="">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="https://www.linkedin.com/in/sebastien-perez-vasseur-76938612/" class="mx-2">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+          <a href="https://github.com/rezpe" class="mx-2">
+            <i class="fab fa-github"></i>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="small text-center text-white-50">
+      <div class="container">
+        Copyright &copy; Sebastian Perez Vasseur 2018
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for this template -->
+    <script src="js/grayscale.min.js"></script>
+
+  </body>
+
+</html>
