@@ -1,3 +1,6 @@
 remote_theme: StartBootstrap/startbootstrap-clean-blog-jekyll
 plugins:
   - jekyll-remote-theme
+title: Rezpe's blog
+description: Science Funnel
+author: Sebastien Perez Vasseur
