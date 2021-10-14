@@ -2,6 +2,6 @@
 layout: default
 ---
 
-## Beautiful knowledge distillation
+## Sebastien Perez Vasseur
 
-This website will contain notes, curated sources, recommendations, research papers and summary insights. 
+This is the personal website of Sebastien Perez Vasseur. 
