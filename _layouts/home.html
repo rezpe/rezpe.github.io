@@ -12,9 +12,9 @@ body {
 </script>
 
 <p>
-<h1>Sebastien Perez Vasseur</h1>
+    <h1>Sebastien Perez Vasseur</h1>
 
-I'm a data scientist and trainer who is passionate about 
+I'm a data scientist and trainer who is passionate about
 startups and innovation, data and design and everything creative. 🇪🇸
 
 </p>
@@ -25,11 +25,11 @@ startups and innovation, data and design and everything creative. 🇪🇸
     <a href="{{post.url}}">
         {{ post.title }}
         {{ post.author }}
-        {{ post.date | date: '%B %d, %Y' }} 
-</a>
+        {{ post.date | date: '%B %d, %Y' }}
+    </a>
 </p>
 <p>
-    {{post.content}| truncatewords: 100 }}
-</p>          
+    {{post.content | truncatewords: 100 }}
+</p>
 
 {% endfor %}
