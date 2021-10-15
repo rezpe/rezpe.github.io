@@ -1,0 +1,35 @@
+<script type="text/css">
+
+body {
+                font-family: Cantarell,sans-serif;
+                font-size: 120%;
+                max-width: 40em;
+                margin: 0px auto;
+                padding: 0em 1em 1em 1em;
+                line-height: 1.6;
+            }
+
+</script>
+
+<p>
+<h1>Sebastien Perez Vasseur</h1>
+
+I'm a data scientist and trainer who is passionate about 
+startups and innovation, data and design and everything creative. 🇪🇸
+
+</p>
+
+{% for post in site.posts limit : 5 %}
+
+<p>
+    <a href="{{post.url}}">
+        {{ post.title }}
+        {{ post.author }}
+        {{ post.date | date: '%B %d, %Y' }} 
+</a>
+</p>
+<p>
+    {{post.content}| truncatewords: 100 }
+</p>          
+
+{% endfor %}
