@@ -27,13 +27,11 @@ body {
 
 <p>
     <a href="{{post.url}}">
-        {{ post.title }}
-        {{ post.author }}
-        
+        {{ post.title }}<span style="font-size: 50%;">{{ page.date | date: '%B %d, %Y' }}</span>
     </a>
 </p>
 <p>
-    {{post.content | truncatewords: 100 }}
+    {{post.content | truncatewords: 50 }}
 </p>
 
 {% endfor %}
