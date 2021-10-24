@@ -5,6 +5,8 @@ date: 2021-10-16
 layout: page
 ---
 
+Update 2021-10-24: I just discovered the rokoko mocap suit which puts the bill at $4000 for digital actors: https://www.rokoko.com/ 
+
 It seems that the future of cinema will go through a steep decrease of production costs due to technical innovations.
 
 The first example of this is the Mandalorian series which is no longer using physical sets: instead what they do is they create all the locations digitally and they render everything in a massive screen behind the actors. And this is not only cheaper but also enables changes in real time to the elements, to the lights, ... You can see the final results immediately, instead of waiting a few days to get the final shot in postproduction.
