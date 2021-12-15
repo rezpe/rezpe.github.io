@@ -6,6 +6,7 @@ layout: page
 ---
 
 Update 2021-10-24: I just discovered the rokoko mocap suit which puts the bill at $4000 for digital actors: https://www.rokoko.com/ 
+Update 2021-12-15: A nice recap on the unreal 5 technology showcased for the Matrix: https://www.youtube.com/watch?v=gry36cT3TdI
 
 It seems that the future of cinema will go through a steep decrease of production costs due to technical innovations.
 
