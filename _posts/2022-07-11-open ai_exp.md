@@ -1,5 +1,5 @@
 ---
-title: The future of cinema
+title: Open Ai conversations
 author: Sebas
 date: 2021-10-16
 layout: page
