@@ -5,7 +5,7 @@ date: 2021-10-16
 layout: page
 ---
 
-This is a conversation I had with GPT-3:
+Those are conversations I had with GPT-3:
 
 _______________________________________________
 
@@ -55,3 +55,38 @@ mouth.animate([
 Which way is recommended ?
 
 There is no definitive answer, but GSAP is generally considered more powerful and easy to use than other animation libraries.
+
+______________________________________________
+
+For this SVG:
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="yellow" id="face" />
+  <circle cx="35" cy="35" r="5" fill="black" id="eye1" />
+  <circle cx="65" cy="35" r="5" fill="black" id="eye2" />
+  <path d="M50,80 C35,80 35,65 50,65" stroke="black" stroke-width="5" fill="none" id="mouth" />
+</svg>
+```
+
+The d attribute corresponds to an open mouth. Can you write d attribute of the mouth when it is closed ?
+
+The d attribute for a closed mouth would be "M50,80 C35,80 65,80 50,65".
+
+Can you write js code that morphs the d attribute of the mouth path from open to closed in 500ms in an infinite loop ?
+```js
+var mouth = document.getElementById("mouth");
+
+function closeMouth() {
+  mouth.setAttribute("d", "M50,80 C35,80 65,80 50,65");
+}
+
+function openMouth() {
+  mouth.setAttribute("d", "M50,80 C35,80 35,65 50,65");
+}
+
+setInterval(function() {
+  closeMouth();
+  setTimeout(openMouth, 500);
+}, 1000);
+```
