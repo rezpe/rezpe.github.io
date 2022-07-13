@@ -90,3 +90,37 @@ setInterval(function() {
   setTimeout(openMouth, 500);
 }, 1000);
 ```
+
+______________________________________
+
+The bash commands available are:
+
+- add {task name}: Create a task
+- get {name}: returns task id from the name
+- remove {name}: removes a task
+- duration {id} {duration}: sets the duration of a task
+- start {id} {hour}.: sets the starting hour of the task
+
+Can you write the commands that creates 3 tasks:
+- Buy bread from 9 lasting 5mn
+- Clean Shoes from 10 lasting 30mn
+- Implement this lasting 60mn
+
+```bash
+add Buy bread
+get Buy bread
+duration Buy bread 5
+start Buy bread 9
+
+add Clean Shoes
+get Clean Shoes
+duration Clean Shoes 30
+start Clean Shoes 10
+
+add Implement this
+get Implement this
+duration Implement this 60
+start Implement this
+```
+
+Amazing !!!!
