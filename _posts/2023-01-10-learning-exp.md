@@ -16,6 +16,6 @@ The difficulty with this system is that it does not take into account individual
 As the course proceeds, it is not unusual for some students to study at a faster speed than others. Some students may even get "blocked," unable to understand the content.
 ![](2023-01-10-learning-exp-img/faststudent.png)
 ![](2023-01-10-learning-exp-img/slowstudent.png)
-Some students may fail to study because they lack prior knowledge, have learning difficulties, or are dealing with other personal issues. As they struggle to keep up with their peers, these student may feel disappointed.Furthermore, we can also have certain pupils being "blocked" and unable to learn. 
+Some students may fail to study because they lack prior knowledge, have learning difficulties, or are dealing with other personal issues. As they struggle to keep up with their peers, these student may feel disappointed. Furthermore, we can also have certain pupils being "blocked" and unable to learn. 
 
 Therefore, it seems that the final grade of a student does not seem as useful as measuring the progress of the students throughout the course. This would enable to detect those cases and perform preventive actions to help those students.
