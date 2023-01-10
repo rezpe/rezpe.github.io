@@ -6,7 +6,7 @@ layout: page
 ---
 
 When students begin a course, they may have diverse degrees of knowledge and comprehension. 
-![](/assets/images/2023-01-10-learning-exp-img/nostudent.png){: width="70%" }
+![](/assets/images/2023-01-10-learning-exp-img/nostudent.png){: width="90%" }
 And then as time goes by, they learn the concepts and improve their level of understanding.
 ![](/assets/images/2023-01-10-learning-exp-img/onestudent.png){: width="400" }
 A final grading exam is often conducted after the course to assess which students have attained a suitable level of comprehension. Those who score above a particular level are regarded to have finished the course satisfactorily.
