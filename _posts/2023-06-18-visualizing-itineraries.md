@@ -1,7 +1,7 @@
 ---
 title: Visualizing itineraries
 author: Sebas
-date: 2023-06-19
+date: 2023-06-18
 layout: page
 ---
 
