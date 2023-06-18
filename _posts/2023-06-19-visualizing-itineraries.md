@@ -1,6 +1,6 @@
 
 ---
-title: Extracting text from Supermarket bills with Python, OpenCV and Keras-OCR
+title: Visualizing itineraries
 author: Sebas
 date: 2023-06-19
 layout: page
