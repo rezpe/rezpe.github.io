@@ -1,4 +1,3 @@
-
 ---
 title: Visualizing itineraries
 author: Sebas
