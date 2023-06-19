@@ -33,7 +33,7 @@ Let's start with a simple exercise. What is the best way to visualize what you h
 
 ### With a timeline:
 
-![](assets/images/2023-06-19-visualizing-itineraries-img/image_timeline.png){: width="90%" }
+![](/assets/images/2023-06-19-visualizing-itineraries-img/image_timeline.png){: width="90%" }
 
 References:
 
