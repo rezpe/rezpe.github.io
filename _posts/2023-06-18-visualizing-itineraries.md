@@ -7,35 +7,27 @@ layout: page
 
 Let's start with a simple exercise. What is the best way to visualize what you have done during a day ? Like yout day itinerary. This could be applied to day assesments or to plan a trip. 
 
-## Some ideas:
+## The time dimensioni:
 
 ### With emojis:
 
-🎬
-🚶
-🛒
-🚶
-🍽️
-🧽
-💻
-🍽️
-🎬
-🚶
-😴
-🚶
-🛒
-💻
-🍽️
-📦
-🧽
-💻
-💻
+🎬🚶🛒🚶🍽️🧽💻🍽️🎬🚶😴🚶🛒💻🍽️📦🧽💻💻
 
 ### With a timeline:
 
 ![](/assets/images/2023-06-19-visualizing-itineraries-img/image_timeline.png){: width="90%" }
 
-References:
+
+## The location dimension
+
+And there are plenty of examples that draw a timeline like a geographic path:
+
+![](/assets/images/2023-06-19-visualizing-itineraries-img/map_iti.png){: width="90%" }
+
+## References:
+
+Emoji for travel
+- https://emojipedia.org/travel-places/
 
 Itinerary Apps: 
 - https://www.makeuseof.com/travel-planning-apps-live-maps-trip-itinerary/
@@ -48,3 +40,6 @@ Itinerary Builder:
 
 Travel Planner: 
 - https://wanderlog.com/
+
+Geographic Plan:
+- https://www.livelikeitstheweekend.com/google-maps-trip-planner/
