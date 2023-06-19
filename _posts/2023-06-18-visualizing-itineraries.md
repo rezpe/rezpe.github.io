@@ -7,6 +7,10 @@ layout: page
 
 Let's start with a simple exercise. What is the best way to visualize what you have done during a day ? Like yout day itinerary. This could be applied to day assesments or to plan a trip. 
 
+## Some ideas:
+
+### With emojis:
+
 🎬
 🚶
 🛒
@@ -26,6 +30,10 @@ Let's start with a simple exercise. What is the best way to visualize what you h
 🧽
 💻
 💻
+
+### With a timeline:
+
+![](assets/images/2023-06-19-visualizing-itineraries-img/image_timeline.png){: width="90%" }
 
 References:
 
