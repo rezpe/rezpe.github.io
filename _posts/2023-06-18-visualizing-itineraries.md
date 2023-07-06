@@ -54,5 +54,5 @@ Geographic Plan:
 Animejs:
 - https://animejs.com/
 
-- Orbit UI Presentation:
-https://www.youtube.com/watch?v=JlLqxIKIWVM
+Orbit UI Presentation:
+- https://www.youtube.com/watch?v=JlLqxIKIWVM
