@@ -22,6 +22,7 @@ Viewing itineraries as timelines offers travelers a dynamic and insightful persp
 
 ![](/assets/images/2023-06-19-visualizing-itineraries-img/image_timeline.png){: width="90%" }
 ![](/assets/images/2023-06-19-visualizing-itineraries-img/animejs.png){: width="90%" }
+![](/assets/images/2023-06-19-visualizing-itineraries-img/animejs.png){: width="50%" }
 
 
 ## The location dimension
@@ -52,3 +53,6 @@ Geographic Plan:
 
 Animejs:
 - https://animejs.com/
+
+- Orbit UI Presentation:
+https://www.youtube.com/watch?v=JlLqxIKIWVM
