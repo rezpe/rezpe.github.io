@@ -1,4 +1,10 @@
-# AR/VR Landscape: Meta's Quest 3 vs. Apple's Vision Pro
+
+---
+title: AR/VR Landscape: Meta's Quest 3 vs. Apple's Vision Pro
+author: Sebas
+date: 2024-03-12
+layout: page
+---
 
 Apple finally released the Vision Pro device on February of this year, after an announcement on June 2023. This release set again VR in the spotlight.  Even thoughMeta's Quest 3 leads the pack in the AR and VR scene with solid basics: good 3D, efficient passthrough, and precise hand tracking, all at a great price, it has failed to gain the same traction as the Apple Vision Pro. And we are talking about a device though providing top-notch OLED screens and superior passthrough, has a steeply priced at $3,500. However, it falls short of expectations, raising questions about its high-end pricing strategy.
 
