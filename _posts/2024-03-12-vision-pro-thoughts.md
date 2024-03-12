@@ -1,4 +1,3 @@
-
 ---
 title: AR/VR Landscape: Meta's Quest 3 vs. Apple's Vision Pro
 author: Sebas
