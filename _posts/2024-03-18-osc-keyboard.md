@@ -1,5 +1,5 @@
 ---
-title: On screen gamepads are wrong, but can be made easy ! 
+title: On screen gamepads are wrong, but can be made easy.
 author: Sebas
 date: 2024-03-18
 layout: page
