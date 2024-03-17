@@ -4,6 +4,7 @@ author: Sebas
 date: 2024-03-18
 layout: page
 ---
+
 In today's digital era, platform games on mobile devices have become a prevalent form of entertainment. Yet, an intuitive user interface is crucial for a fulfilling gaming experience. A particularly problematic aspect is the use of on-screen keyboards, whose lack of precision can frustrate players. This article delves into the challenges presented by on-screen keyboards and suggests ways to reimagine them for better functionality.
 
 ![](/assets/images/2023-06-19-visualizing-itineraries-img/img3.png)
