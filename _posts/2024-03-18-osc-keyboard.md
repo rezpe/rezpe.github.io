@@ -6,7 +6,7 @@ layout: page
 ---
 In today's digital era, platform games on mobile devices have become a prevalent form of entertainment. Yet, an intuitive user interface is crucial for a fulfilling gaming experience. A particularly problematic aspect is the use of on-screen keyboards, whose lack of precision can frustrate players. This article delves into the challenges presented by on-screen keyboards and suggests ways to reimagine them for better functionality.
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img3.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img3.png)
 
 Figure 1: Dan the man (Source: https://play.google.com/store/apps/details?id=com.halfbrick.dantheman&hl=en&gl=US) 
 
@@ -20,25 +20,25 @@ There are several ways this could be solved:
 
 However, the best know solution to this issue is to simplify controls and segmenting the screen into larger, more manageable sections. For instance, Dadish divides the screen into three areas, simplifying the search for the correct buttons. This maximizes the button size as all the screen area is used.
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img4.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img4.png)
 
 Figure 2: Dadish heavily uses user interaction and yet no on-screen keyboard is shown (Source: https://play.google.com/store/apps/details?id=com.thomasyoung.gooddadish&hl=en&gl=US) 
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img5.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img5.png)
 
 Figure 3: Dadish’ division of the screen for input (Source: https://play.google.com/store/apps/details?id=com.thomasyoung.gooddadish&hl=en&gl=US) 
 
 With this in mind, we can even think that the screen could be divided into 12 and that would provide a grid for game buttons. Then this grid could be adapted for games. For example, we can reimagine the Zombotron interface with this grid idea. As we can see, the button area is maximized.
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img6.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img6.png)
 
 Figure 4: On screen input grid
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img7.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img7.png)
 
 Figure 5: Zombotron left buttons are missed due to their smaller size
 
-![Untitled](/assets/images/2023-06-19-visualizing-itineraries-img/img8.png)
+![](/assets/images/2023-06-19-visualizing-itineraries-img/img8.png)
 
 Figure 6: Reimagined interface using the grid interface
 
