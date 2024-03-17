@@ -1,5 +1,5 @@
 ---
-title: VR Landscape; Meta's Quest 3 vs Apple's Vision Pro
+title: Apple's Vision Pro thoughts
 author: Sebas
 date: 2024-03-12
 layout: page
