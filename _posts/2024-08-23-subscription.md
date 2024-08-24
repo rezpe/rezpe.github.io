@@ -16,7 +16,7 @@ Generative AI is a type of artificial intelligence that creates new content like
 One of the applications of GenAI are chatbots and assistants who are emerging as new interfaces for information access, potentially supplanting traditional search engines and content platforms. These AI tools can provide direct answers and synthesized information, reducing time spent on ad-supported websites.
 Furthermore, GenAI is democratizing content creation, allowing individuals and small businesses to produce professional-quality content cheaply. This could lead to a flood of new content, further fragmenting audience attention and challenging existing content monetization strategies.
 
-These 2 consequences are requiring a new type of model where:
+These 2 applications are creating a new type of setting where:
 
 - Information is selected curated to ensure its high quality, distinguishing it from the free data with loads of low quality data created with GenAI
 - Information's quality increase will end up in new forms of content consumption, like the interactive experiences of Brilliant or Videogames. Even GenAI let the user see summaries of the information like zooming in or out of the information.
