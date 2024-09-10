@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Trip - Expense Splitting App</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Button = ({ children, onClick, className, variant, size }) => (
+            <button onClick={onClick} className={`px-4 py-2 rounded ${variant === 'ghost' ? 'bg-transparent' : 'bg-blue-500 text-white'} ${size === 'icon' ? 'p-2' : ''} ${className}`}>{children}</button>
+        );
+
+        const Input = ({ type, placeholder, value, onChange }) => (
+            <input type={type} placeholder={placeholder} value={value} onChange={onChange} className="w-full px-3 py-2 border rounded" />
+        );
+
+        const Card = ({ children, className }) => (
+            <div className={`bg-white shadow-md rounded-lg ${className}`}>{children}</div>
+        );
+
+        const CardHeader = ({ children }) => <div className="px-4 py-5 border-b border-gray-200 sm:px-6">{children}</div>;
+        const CardTitle = ({ children }) => <h3 className="text-lg leading-6 font-medium text-gray-900">{children}</h3>;
+        const CardContent = ({ children }) => <div className="px-4 py-5 sm:p-6">{children}</div>;
+
+        const FairTrip = () => {
+            const [expenses, setExpenses] = useState([]);
+            const [newExpense, setNewExpense] = useState({ name: '', person: '', amount: '', date: '' });
+
+            useEffect(() => {
+                const storedExpenses = localStorage.getItem('fairTripExpenses');
+                if (storedExpenses) setExpenses(JSON.parse(storedExpenses));
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('fairTripExpenses', JSON.stringify(expenses));
+            }, [expenses]);
+
+            const addExpense = () => {
+                if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date) {
+                    setExpenses([...expenses, { ...newExpense, amount: parseFloat(newExpense.amount) }]);
+                    setNewExpense({ name: '', person: '', amount: '', date: '' });
+                }
+            };
+
+            const removeExpense = (index) => {
+                setExpenses(expenses.filter((_, i) => i !== index));
+            };
+
+            const calculateSplits = () => {
+                const totalExpense = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const peopleSet = new Set(expenses.map(exp => exp.person));
+                const perPersonShare = totalExpense / peopleSet.size;
+
+                const balances = Array.from(peopleSet).map(person => {
+                    const paid = expenses.filter(exp => exp.person === person).reduce((sum, exp) => sum + exp.amount, 0);
+                    return { person, balance: paid - perPersonShare };
+                });
+
+                const transactions = [];
+                const debtors = balances.filter(b => b.balance < 0).sort((a, b) => a.balance - b.balance);
+                const creditors = balances.filter(b => b.balance > 0).sort((a, b) => b.balance - a.balance);
+
+                while (debtors.length > 0 && creditors.length > 0) {
+                    const debtor = debtors[0];
+                    const creditor = creditors[0];
+                    const amount = Math.min(Math.abs(debtor.balance), creditor.balance);
+                    transactions.push({ from: debtor.person, to: creditor.person, amount: amount.toFixed(2) });
+                    debtor.balance += amount;
+                    creditor.balance -= amount;
+                    if (Math.abs(debtor.balance) < 0.01) debtors.shift();
+                    if (creditor.balance < 0.01) creditors.shift();
+                }
+
+                return { balances, transactions };
+            };
+
+            return (
+                <div className="p-4 max-w-md mx-auto">
+                    <h1 className="text-2xl font-bold mb-4">Fair Trip</h1>
+                    
+                    <Card className="mb-4">
+                        <CardContent>
+                            <p className="text-sm text-gray-600">
+                                Fair Trip helps you split expenses among a group. Add each expense with its name, the person who paid, the amount, and the date. The app will calculate how much each person owes or is owed to ensure everyone pays an equal share. Your expenses are saved automatically and will be available when you reopen the page.
+                            </p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="mb-4">
+                        <CardHeader>
+                            <CardTitle>Add Expense</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex flex-col space-y-2">
+                                <Input placeholder="Expense Name" value={newExpense.name} onChange={(e) => setNewExpense({...newExpense, name: e.target.value})} />
+                                <Input placeholder="Person" value={newExpense.person} onChange={(e) => setNewExpense({...newExpense, person: e.target.value})} />
+                                <Input type="number" placeholder="Amount" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} />
+                                <Input type="date" value={newExpense.date} onChange={(e) => setNewExpense({...newExpense, date: e.target.value})} />
+                                <Button onClick={addExpense} className="w-full">
+                                    ➕ Add Expense
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="mb-4">
+                        <CardHeader>
+                            <CardTitle>Expenses</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {expenses.map((expense, index) => (
+                                <div key={index} className="flex justify-between items-center mb-2">
+                                    <span>{expense.name}: {expense.person} paid ${expense.amount} on {expense.date}</span>
+                                    <Button variant="ghost" size="icon" onClick={() => removeExpense(index)}>
+                                        🗑️
+                                    </Button>
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Settlement</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {calculateSplits().balances.map((balance, index) => (
+                                <div key={index} className="mb-2">
+                                    {balance.person}: {balance.balance > 0 
+                                        ? `Gets $${balance.balance.toFixed(2)}` 
+                                        : `Owes $${Math.abs(balance.balance).toFixed(2)}`}
+                                </div>
+                            ))}
+                            <div className="mt-4">
+                                <h3 className="font-semibold mb-2">Transactions to settle:</h3>
+                                {calculateSplits().transactions.map((transaction, index) => (
+                                    <div key={index} className="mb-1">
+                                        {transaction.from} pays {transaction.to}: ${transaction.amount}
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<FairTrip />, document.getElementById('root'));
+    </script>
+</body>
+</html>
