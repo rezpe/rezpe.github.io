@@ -147,6 +147,50 @@
                     return personExpenses;
                 });
 
+                // Computed property to calculate who pays whom
+                const settlements = computed(() => {
+                    const debtors = [];
+                    const creditors = [];
+
+                    // Separate debtors and creditors based on their balances
+                    Object.entries(expensesPerPerson.value).forEach(([person, { balance }]) => {
+                        if (balance < 0) {
+                            debtors.push({ person, balance: Math.abs(balance) }); // Debtors owe money
+                        } else if (balance > 0) {
+                            creditors.push({ person, balance }); // Creditors are owed money
+                        }
+                    });
+
+                    const transactions = [];
+
+                    // Create transactions to settle debts
+                    while (debtors.length > 0 && creditors.length > 0) {
+                        const debtor = debtors[0];
+                        const creditor = creditors[0];
+
+                        const paymentAmount = Math.min(debtor.balance, creditor.balance);
+                        transactions.push({
+                            from: debtor.person,
+                            to: creditor.person,
+                            amount: paymentAmount.toFixed(2)
+                        });
+
+                        // Adjust balances
+                        debtor.balance -= paymentAmount;
+                        creditor.balance -= paymentAmount;
+
+                        // Remove settled debtors or creditors
+                        if (debtor.balance === 0) {
+                            debtors.shift();
+                        }
+                        if (creditor.balance === 0) {
+                            creditors.shift();
+                        }
+                    }
+
+                    return transactions;
+                });
+
                 return {
                     expenses,
                     groups,
@@ -159,6 +203,7 @@
                     bulkEditText,
                     filteredExpenses,
                     expensesPerPerson,
+                    settlements,
                     addExpense,
                     addGroup,
                     removeExpense,
@@ -291,6 +336,14 @@
                             Balance: <span :class="{'text-green-500': person.balance >= 0, 'text-red-500': person.balance < 0}">
                                 {{ person.balance >= 0 ? 'Receives' : 'Owes' }} \${{ Math.abs(person.balance).toFixed(2) }}
                             </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Settlements</h2>
+                        <div v-if="settlements.length === 0">All balances are settled.</div>
+                        <div v-for="(settlement, index) in settlements" :key="index" class="mb-2">
+                            {{ settlement.from }} pays {{ settlement.to }}: \${{ settlement.amount }}
                         </div>
                     </div>
                 </div>
