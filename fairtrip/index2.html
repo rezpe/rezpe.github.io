@@ -1,204 +1,208 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Fair Trip - Expense Splitting App</title>
-        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
-    <body>
-        <div id="app"></div>
-    
-        <script>
-            const { createApp, ref, reactive, onMounted } = Vue;
-    
-            createApp({
-                setup() {
-                    const expenses = ref([]);
-                    const newExpense = reactive({ name: '', person: '', amount: '', date: '', group: '' });
-                    const isEditing = ref(false);
-                    const showConfig = ref(false);
-                    const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
-                    const bulkEditText = ref('');
-    
-                    onMounted(() => {
-                        const storedExpenses = localStorage.getItem('fairTripExpenses');
-                        const storedConfig = localStorage.getItem('fairTripConfig');
-                        if (storedExpenses) expenses.value = JSON.parse(storedExpenses);
-                        if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
-                    });
-    
-                    const syncWithAirtable = () => {
-                        if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
-                            console.log('Syncing with Airtable...');
-                            // Add Airtable API synchronization logic here
-                        }
-                    };
-    
-                    const saveToLocalStorage = () => {
-                        localStorage.setItem('fairTripExpenses', JSON.stringify(expenses.value));
-                        localStorage.setItem('fairTripConfig', JSON.stringify(config));
-                        syncWithAirtable();
-                    };
-    
-                    const addExpense = () => {
-                        if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date && newExpense.group) {
-                            expenses.value.push({ ...newExpense, amount: parseFloat(newExpense.amount) });
-                            Object.assign(newExpense, { name: '', person: '', amount: '', date: '', group: '' });
-                            saveToLocalStorage();
-                        }
-                    };
-    
-                    const removeExpense = (index) => {
-                        expenses.value.splice(index, 1);
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fair Trip - Expense Splitting App</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const { createApp, ref, reactive, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const expenses = ref([]);
+                const newExpense = reactive({ name: '', person: '', amount: '', date: '', group: '' });
+                const isEditing = ref(false);
+                const showConfig = ref(false);
+                const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
+                const bulkEditText = ref('');
+
+                // Load data from localStorage when the component is mounted
+                onMounted(() => {
+                    const storedExpenses = localStorage.getItem('fairTripExpenses');
+                    const storedConfig = localStorage.getItem('fairTripConfig');
+                    if (storedExpenses) expenses.value = JSON.parse(storedExpenses);
+                    if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
+                });
+
+                // Watch for changes to config and save to localStorage
+                watch(config, () => {
+                    localStorage.setItem('fairTripConfig', JSON.stringify(config));
+                    syncWithAirtable();
+                }, { deep: true });
+
+                const syncWithAirtable = () => {
+                    if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
+                        console.log('Syncing with Airtable...');
+                        // Add Airtable API synchronization logic here
+                    }
+                };
+
+                const saveToLocalStorage = () => {
+                    localStorage.setItem('fairTripExpenses', JSON.stringify(expenses.value));
+                };
+
+                const addExpense = () => {
+                    if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date && newExpense.group) {
+                        expenses.value.push({ ...newExpense, amount: parseFloat(newExpense.amount) });
+                        Object.assign(newExpense, { name: '', person: '', amount: '', date: '', group: '' });
                         saveToLocalStorage();
-                    };
-    
-                    const updateExpense = (index, field, value) => {
-                        expenses.value[index][field] = field === 'amount' ? parseFloat(value) : value;
+                    }
+                };
+
+                const removeExpense = (index) => {
+                    expenses.value.splice(index, 1);
+                    saveToLocalStorage();
+                };
+
+                const updateExpense = (index, field, value) => {
+                    expenses.value[index][field] = field === 'amount' ? parseFloat(value) : value;
+                    saveToLocalStorage();
+                };
+
+                const toggleEditing = () => {
+                    isEditing.value = !isEditing.value;
+                    if (!isEditing.value) {
+                        bulkEditText.value = JSON.stringify(expenses.value, null, 2);
+                    }
+                };
+
+                const bulkSave = () => {
+                    try {
+                        expenses.value = JSON.parse(bulkEditText.value);
                         saveToLocalStorage();
-                    };
-    
-                    const toggleEditing = () => {
-                        isEditing.value = !isEditing.value;
-                        if (!isEditing.value) {
-                            bulkEditText.value = JSON.stringify(expenses.value, null, 2);
-                        }
-                    };
-    
-                    const bulkSave = () => {
-                        try {
-                            expenses.value = JSON.parse(bulkEditText.value);
-                            saveToLocalStorage();
-                        } catch (error) {
-                            alert('Invalid JSON format');
-                        }
-                    };
-    
-                    return {
-                        expenses,
-                        newExpense,
-                        isEditing,
-                        showConfig,
-                        config,
-                        bulkEditText,
-                        addExpense,
-                        removeExpense,
-                        updateExpense,
-                        toggleEditing,
-                        bulkSave
-                    };
-                },
-                template: `
-                    <div class="p-4 max-w-4xl mx-auto">
-                        <div class="flex justify-between items-center mb-4">
-                            <h1 class="text-2xl font-bold">Fair Trip</h1>
-                            <div class="flex space-x-2">
-                                <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
-                                <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
-                                    {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
-                                </button>
-                            </div>
-                        </div>
-    
-                        <div v-if="showConfig" class="mb-4 p-4 border rounded">
-                            <h2 class="text-lg font-semibold mb-2">Configuration</h2>
-                            <div class="space-y-2">
-                                <input
-                                    v-model="config.airtableApiKey"
-                                    placeholder="Airtable API Key"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="config.airtableBaseId"
-                                    placeholder="Airtable Base ID"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="config.airtableTableName"
-                                    placeholder="Airtable Table Name"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                            </div>
-                        </div>
-    
-                        <div class="mb-4 p-4 border rounded">
-                            <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
-                            <div class="flex flex-col space-y-2">
-                                <input
-                                    v-model="newExpense.group"
-                                    placeholder="Group Name"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="newExpense.name"
-                                    placeholder="Expense Name"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="newExpense.person"
-                                    placeholder="Person"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="newExpense.amount"
-                                    type="number"
-                                    placeholder="Amount"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <input
-                                    v-model="newExpense.date"
-                                    type="date"
-                                    class="w-full px-3 py-2 border rounded"
-                                />
-                                <button @click="addExpense" class="w-full px-4 py-2 bg-blue-500 text-white rounded">
-                                    Add Expense
-                                </button>
-                            </div>
-                        </div>
-    
-                        <div class="mb-4 p-4 border rounded" v-if="isEditing">
-                            <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses</h2>
-                            <textarea
-                                v-model="bulkEditText"
-                                rows="10"
-                                class="w-full px-3 py-2 border rounded"
-                            ></textarea>
-                            <button @click="bulkSave" class="w-full px-4 py-2 bg-green-500 text-white rounded mt-2">Save Bulk Edit</button>
-                        </div>
-    
-                        <div class="mb-4 p-4 border rounded">
-                            <h2 class="text-lg font-semibold">Expenses</h2>
-                            <table class="w-full">
-                                <thead>
-                                    <tr>
-                                        <th>Group</th>
-                                        <th>Name</th>
-                                        <th>Person</th>
-                                        <th>Amount</th>
-                                        <th>Date</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(expense, index) in expenses" :key="index">
-                                        <td>{{ expense.group }}</td>
-                                        <td>{{ expense.name }}</td>
-                                        <td>{{ expense.person }}</td>
-                                        <td>\${{ expense.amount.toFixed(2) }}</td>
-                                        <td>{{ expense.date }}</td>
-                                        <td>
-                                            <button @click="removeExpense(index)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    } catch (error) {
+                        alert('Invalid JSON format');
+                    }
+                };
+
+                return {
+                    expenses,
+                    newExpense,
+                    isEditing,
+                    showConfig,
+                    config,
+                    bulkEditText,
+                    addExpense,
+                    removeExpense,
+                    updateExpense,
+                    toggleEditing,
+                    bulkSave
+                };
+            },
+            template: `
+                <div class="p-4 max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-2xl font-bold">Fair Trip</h1>
+                        <div class="flex space-x-2">
+                            <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
+                            <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
+                                {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
+                            </button>
                         </div>
                     </div>
-                `
-            }).mount('#app');
-        </script>
-    </body>
-    </html>
-    
+
+                    <div v-if="showConfig" class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Configuration</h2>
+                        <div class="space-y-2">
+                            <input
+                                v-model="config.airtableApiKey"
+                                placeholder="Airtable API Key"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableBaseId"
+                                placeholder="Airtable Base ID"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableTableName"
+                                placeholder="Airtable Table Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
+                        <div class="flex flex-col space-y-2">
+                            <input
+                                v-model="newExpense.group"
+                                placeholder="Group Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.name"
+                                placeholder="Expense Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.person"
+                                placeholder="Person"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.amount"
+                                type="number"
+                                placeholder="Amount"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.date"
+                                type="date"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <button @click="addExpense" class="w-full px-4 py-2 bg-blue-500 text-white rounded">
+                                Add Expense
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded" v-if="isEditing">
+                        <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses</h2>
+                        <textarea
+                            v-model="bulkEditText"
+                            rows="10"
+                            class="w-full px-3 py-2 border rounded"
+                        ></textarea>
+                        <button @click="bulkSave" class="w-full px-4 py-2 bg-green-500 text-white rounded mt-2">Save Bulk Edit</button>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Expenses</h2>
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Group</th>
+                                    <th>Name</th>
+                                    <th>Person</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(expense, index) in expenses" :key="index">
+                                    <td>{{ expense.group }}</td>
+                                    <td>{{ expense.name }}</td>
+                                    <td>{{ expense.person }}</td>
+                                    <td>\${{ expense.amount.toFixed(2) }}</td>
+                                    <td>{{ expense.date }}</td>
+                                    <td>
+                                        <button @click="removeExpense(index)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `
+        }).mount('#app');
+    </script>
+</body>
+</html>
