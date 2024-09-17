@@ -16,7 +16,9 @@
         createApp({
             setup() {
                 const expenses = ref([]);
-                const newExpense = reactive({ name: '', person: '', amount: '', date: '', group: '' });
+                const groups = ref([]);
+                const newExpense = reactive({ name: '', person: '', amount: '', date: new Date().toISOString().slice(0, 10), group: '' });
+                const newGroupName = ref('');
                 const isEditing = ref(false);
                 const showConfig = ref(false);
                 const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
@@ -26,7 +28,10 @@
                 onMounted(() => {
                     const storedExpenses = localStorage.getItem('fairTripExpenses');
                     const storedConfig = localStorage.getItem('fairTripConfig');
-                    if (storedExpenses) expenses.value = JSON.parse(storedExpenses);
+                    if (storedExpenses) {
+                        expenses.value = JSON.parse(storedExpenses);
+                        updateGroupsFromExpenses();
+                    }
                     if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
                 });
 
@@ -50,19 +55,28 @@
                 const addExpense = () => {
                     if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date && newExpense.group) {
                         expenses.value.push({ ...newExpense, amount: parseFloat(newExpense.amount) });
-                        Object.assign(newExpense, { name: '', person: '', amount: '', date: '', group: '' });
+                        Object.assign(newExpense, { name: '', person: '', amount: '', date: new Date().toISOString().slice(0, 10), group: '' });
                         saveToLocalStorage();
+                        updateGroupsFromExpenses();
                     }
+                };
+
+                const addGroup = () => {
+                    if (newGroupName.value && !groups.value.includes(newGroupName.value)) {
+                        groups.value.push(newGroupName.value);
+                        newGroupName.value = ''; // Clear the input after adding
+                    }
+                };
+
+                const updateGroupsFromExpenses = () => {
+                    const uniqueGroups = [...new Set(expenses.value.map(expense => expense.group))];
+                    groups.value = uniqueGroups;
                 };
 
                 const removeExpense = (index) => {
                     expenses.value.splice(index, 1);
                     saveToLocalStorage();
-                };
-
-                const updateExpense = (index, field, value) => {
-                    expenses.value[index][field] = field === 'amount' ? parseFloat(value) : value;
-                    saveToLocalStorage();
+                    updateGroupsFromExpenses();
                 };
 
                 const toggleEditing = () => {
@@ -76,6 +90,7 @@
                     try {
                         expenses.value = JSON.parse(bulkEditText.value);
                         saveToLocalStorage();
+                        updateGroupsFromExpenses();
                     } catch (error) {
                         alert('Invalid JSON format');
                     }
@@ -83,14 +98,16 @@
 
                 return {
                     expenses,
+                    groups,
                     newExpense,
+                    newGroupName,
                     isEditing,
                     showConfig,
                     config,
                     bulkEditText,
                     addExpense,
+                    addGroup,
                     removeExpense,
-                    updateExpense,
                     toggleEditing,
                     bulkSave
                 };
@@ -100,6 +117,12 @@
                     <div class="flex justify-between items-center mb-4">
                         <h1 class="text-2xl font-bold">Fair Trip</h1>
                         <div class="flex space-x-2">
+                            <input 
+                                v-model="newGroupName" 
+                                placeholder="New Group Name" 
+                                class="px-2 py-1 border rounded"
+                            />
+                            <button @click="addGroup" class="px-4 py-2 bg-purple-500 text-white rounded">Add Group</button>
                             <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
                             <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
                                 {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
@@ -131,11 +154,9 @@
                     <div class="mb-4 p-4 border rounded">
                         <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
                         <div class="flex flex-col space-y-2">
-                            <input
-                                v-model="newExpense.group"
-                                placeholder="Group Name"
-                                class="w-full px-3 py-2 border rounded"
-                            />
+                            <select v-model="newExpense.group" class="w-full px-3 py-2 border rounded">
+                                <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
+                            </select>
                             <input
                                 v-model="newExpense.name"
                                 placeholder="Expense Name"
