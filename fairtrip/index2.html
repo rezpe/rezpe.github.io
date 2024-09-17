@@ -4,283 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fair Trip - Expense Splitting App</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <script>
+        const { createApp, ref, reactive, onMounted } = Vue;
 
-        const Button = ({ children, onClick, className }) => (
-            <button onClick={onClick} className={`px-4 py-2 bg-blue-500 text-white rounded ${className}`}>{children}</button>
-        );
+        createApp({
+            setup() {
+                const expenses = ref([]);
+                const newExpense = reactive({ name: '', person: '', amount: '', date: '', trip: '', group: '' });
+                const trips = ref(['Default Trip']);
+                const currentTrip = ref('Default Trip');
+                const isEditing = ref(false);
+                const showConfig = ref(false);
+                const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
+                const bulkEditText = ref('');
 
-        const Input = ({ type, placeholder, value, onChange }) => (
-            <input type={type} placeholder={placeholder} value={value} onChange={onChange} className="w-full px-3 py-2 border rounded" />
-        );
-
-        const Select = ({ value, onChange, options }) => (
-            <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 border rounded">
-                {options.map((option, index) => (
-                    <option key={index} value={option}>{option}</option>
-                ))}
-            </select>
-        );
-
-        const FairTrip = () => {
-            const [expenses, setExpenses] = useState([]);
-            const [newExpense, setNewExpense] = useState({ name: '', person: '', amount: '', date: '', trip: '' });
-            const [trips, setTrips] = useState(['Default Trip']);
-            const [currentTrip, setCurrentTrip] = useState('Default Trip');
-            const [isEditing, setIsEditing] = useState(false);
-            const [showConfig, setShowConfig] = useState(false);
-            const [config, setConfig] = useState({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
-
-            useEffect(() => {
-                const storedExpenses = localStorage.getItem('fairTripExpenses');
-                const storedTrips = localStorage.getItem('fairTripTrips');
-                const storedConfig = localStorage.getItem('fairTripConfig');
-                if (storedExpenses) setExpenses(JSON.parse(storedExpenses));
-                if (storedTrips) setTrips(JSON.parse(storedTrips));
-                if (storedConfig) setConfig(JSON.parse(storedConfig));
-            }, []);
-
-            useEffect(() => {
-                localStorage.setItem('fairTripExpenses', JSON.stringify(expenses));
-                localStorage.setItem('fairTripTrips', JSON.stringify(trips));
-                localStorage.setItem('fairTripConfig', JSON.stringify(config));
-                if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
-                    console.log('Syncing with Airtable...');
-                }
-            }, [expenses, trips, config]);
-
-            const addExpense = () => {
-                if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date) {
-                    setExpenses([...expenses, { ...newExpense, amount: parseFloat(newExpense.amount), trip: currentTrip }]);
-                    setNewExpense({ name: '', person: '', amount: '', date: '', trip: currentTrip });
-                }
-            };
-
-            const removeExpense = (index) => {
-                setExpenses(expenses.filter((_, i) => i !== index));
-            };
-
-            const updateExpense = (index, field, value) => {
-                const updatedExpenses = [...expenses];
-                updatedExpenses[index][field] = field === 'amount' ? parseFloat(value) : value;
-                setExpenses(updatedExpenses);
-            };
-
-            const calculateSplits = () => {
-                const totalExpense = expenses.filter(exp => exp.trip === currentTrip).reduce((sum, exp) => sum + exp.amount, 0);
-                const peopleSet = new Set(expenses.filter(exp => exp.trip === currentTrip).map(exp => exp.person));
-                const perPersonShare = totalExpense / peopleSet.size;
-
-                const balances = Array.from(peopleSet).map(person => {
-                    const paid = expenses
-                        .filter(exp => exp.person === person && exp.trip === currentTrip)
-                        .reduce((sum, exp) => sum + exp.amount, 0);
-                    return { person, balance: paid - perPersonShare };
+                onMounted(() => {
+                    const storedExpenses = localStorage.getItem('fairTripExpenses');
+                    const storedTrips = localStorage.getItem('fairTripTrips');
+                    const storedConfig = localStorage.getItem('fairTripConfig');
+                    if (storedExpenses) expenses.value = JSON.parse(storedExpenses);
+                    if (storedTrips) trips.value = JSON.parse(storedTrips);
+                    if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
                 });
 
-                const transactions = [];
-                const debtors = balances.filter(b => b.balance < 0).sort((a, b) => a.balance - b.balance);
-                const creditors = balances.filter(b => b.balance > 0).sort((a, b) => b.balance - a.balance);
+                const syncWithAirtable = () => {
+                    if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
+                        console.log('Syncing with Airtable...');
+                        // Add Airtable API synchronization logic here
+                    }
+                };
 
-                while (debtors.length > 0 && creditors.length > 0) {
-                    const debtor = debtors[0];
-                    const creditor = creditors[0];
-                    const amount = Math.min(Math.abs(debtor.balance), creditor.balance);
-                    transactions.push({ from: debtor.person, to: creditor.person, amount: amount.toFixed(2) });
-                    debtor.balance += amount;
-                    creditor.balance -= amount;
-                    if (Math.abs(debtor.balance) < 0.01) debtors.shift();
-                    if (creditor.balance < 0.01) creditors.shift();
-                }
+                const saveToLocalStorage = () => {
+                    localStorage.setItem('fairTripExpenses', JSON.stringify(expenses.value));
+                    localStorage.setItem('fairTripTrips', JSON.stringify(trips.value));
+                    localStorage.setItem('fairTripConfig', JSON.stringify(config));
+                    syncWithAirtable();
+                };
 
-                return { balances, transactions };
-            };
+                const addExpense = () => {
+                    if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date) {
+                        expenses.value.push({ ...newExpense, amount: parseFloat(newExpense.amount), trip: currentTrip.value });
+                        Object.assign(newExpense, { name: '', person: '', amount: '', date: '', trip: currentTrip.value, group: '' });
+                        saveToLocalStorage();
+                    }
+                };
 
-            const exportJson = () => {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ expenses, trips, config }));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href", dataStr);
-                downloadAnchorNode.setAttribute("download", "fair_trip_data.json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
-            };
+                const removeExpense = (index) => {
+                    expenses.value.splice(index, 1);
+                    saveToLocalStorage();
+                };
 
-            return (
-                <div className="p-4 max-w-4xl mx-auto">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-bold">Fair Trip</h1>
-                        <div className="flex space-x-2">
-                            <Button onClick={() => setShowConfig(!showConfig)}>⚙️</Button>
-                            <Button onClick={exportJson}>⬇️</Button>
+                const updateExpense = (index, field, value) => {
+                    expenses.value[index][field] = field === 'amount' ? parseFloat(value) : value;
+                    saveToLocalStorage();
+                };
+
+                const toggleEditing = () => {
+                    isEditing.value = !isEditing.value;
+                    if (!isEditing.value) {
+                        bulkEditText.value = JSON.stringify(expenses.value, null, 2);
+                    }
+                };
+
+                const bulkSave = () => {
+                    try {
+                        expenses.value = JSON.parse(bulkEditText.value);
+                        saveToLocalStorage();
+                    } catch (error) {
+                        alert('Invalid JSON format');
+                    }
+                };
+
+                return {
+                    expenses,
+                    newExpense,
+                    trips,
+                    currentTrip,
+                    isEditing,
+                    showConfig,
+                    config,
+                    bulkEditText,
+                    addExpense,
+                    removeExpense,
+                    updateExpense,
+                    toggleEditing,
+                    bulkSave
+                };
+            },
+            template: `
+                <div class="p-4 max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-2xl font-bold">Fair Trip</h1>
+                        <div class="flex space-x-2">
+                            <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
+                            <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
+                                {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
+                            </button>
                         </div>
                     </div>
 
-                    {showConfig && (
-                        <div className="mb-4 p-4 border rounded">
-                            <h2 className="text-lg font-semibold mb-2">Configuration</h2>
-                            <div className="space-y-2">
-                                <Input
-                                    placeholder="Airtable API Key"
-                                    value={config.airtableApiKey}
-                                    onChange={(e) => setConfig({...config, airtableApiKey: e.target.value})}
-                                />
-                                <Input
-                                    placeholder="Airtable Base ID"
-                                    value={config.airtableBaseId}
-                                    onChange={(e) => setConfig({...config, airtableBaseId: e.target.value})}
-                                />
-                                <Input
-                                    placeholder="Airtable Table Name"
-                                    value={config.airtableTableName}
-                                    onChange={(e) => setConfig({...config, airtableTableName: e.target.value})}
-                                />
-                            </div>
+                    <div v-if="showConfig" class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Configuration</h2>
+                        <div class="space-y-2">
+                            <input
+                                v-model="config.airtableApiKey"
+                                placeholder="Airtable API Key"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableBaseId"
+                                placeholder="Airtable Base ID"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableTableName"
+                                placeholder="Airtable Table Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
                         </div>
-                    )}
+                    </div>
 
-                    <div className="mb-4 p-4 border rounded">
-                        <h2 className="text-lg font-semibold mb-2">Add Expense</h2>
-                        <div className="flex flex-col space-y-2">
-                            <Select
-                                value={currentTrip}
-                                onChange={setCurrentTrip}
-                                options={trips}
-                            />
-                            <Input
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
+                        <div class="flex flex-col space-y-2">
+                            <select v-model="currentTrip" class="w-full px-3 py-2 border rounded">
+                                <option v-for="trip in trips" :key="trip">{{ trip }}</option>
+                            </select>
+                            <input
+                                v-model="newExpense.name"
                                 placeholder="Expense Name"
-                                value={newExpense.name}
-                                onChange={(e) => setNewExpense({...newExpense, name: e.target.value})}
+                                class="w-full px-3 py-2 border rounded"
                             />
-                            <Input
+                            <input
+                                v-model="newExpense.person"
                                 placeholder="Person"
-                                value={newExpense.person}
-                                onChange={(e) => setNewExpense({...newExpense, person: e.target.value})}
+                                class="w-full px-3 py-2 border rounded"
                             />
-                            <Input
+                            <input
+                                v-model="newExpense.amount"
                                 type="number"
                                 placeholder="Amount"
-                                value={newExpense.amount}
-                                onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+                                class="w-full px-3 py-2 border rounded"
                             />
-                            <Input
+                            <input
+                                v-model="newExpense.date"
                                 type="date"
-                                value={newExpense.date}
-                                onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                                class="w-full px-3 py-2 border rounded"
                             />
-                            <Button onClick={addExpense} className="w-full">
+                            <input
+                                v-model="newExpense.group"
+                                placeholder="Group Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <button @click="addExpense" class="w-full px-4 py-2 bg-blue-500 text-white rounded">
                                 Add Expense
-                            </Button>
+                            </button>
                         </div>
                     </div>
 
-                    <div className="mb-4 p-4 border rounded">
-                        <div className="flex justify-between items-center mb-2">
-                            <h2 className="text-lg font-semibold">Expenses</h2>
-                            <Button onClick={() => setIsEditing(!isEditing)}>
-                                {isEditing ? 'Save Changes' : 'Edit Expenses'}
-                            </Button>
-                        </div>
-                        <table className="w-full">
+                    <div class="mb-4 p-4 border rounded" v-if="isEditing">
+                        <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses</h2>
+                        <textarea
+                            v-model="bulkEditText"
+                            rows="10"
+                            class="w-full px-3 py-2 border rounded"
+                        ></textarea>
+                        <button @click="bulkSave" class="w-full px-4 py-2 bg-green-500 text-white rounded mt-2">Save Bulk Edit</button>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Expenses</h2>
+                        <table class="w-full">
                             <thead>
                                 <tr>
                                     <th>Name</th>
                                     <th>Person</th>
                                     <th>Amount</th>
                                     <th>Date</th>
-                                    <th>Trip</th>
+                                    <th>Group</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {expenses.filter(exp => exp.trip === currentTrip).map((expense, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {isEditing ? (
-                                                <Input
-                                                    value={expense.name}
-                                                    onChange={(e) => updateExpense(index, 'name', e.target.value)}
-                                                />
-                                            ) : expense.name}
-                                        </td>
-                                        <td>
-                                            {isEditing ? (
-                                                <Input
-                                                    value={expense.person}
-                                                    onChange={(e) => updateExpense(index, 'person', e.target.value)}
-                                                />
-                                            ) : expense.person}
-                                        </td>
-                                        <td>
-                                            {isEditing ? (
-                                                <Input
-                                                    type="number"
-                                                    value={expense.amount}
-                                                    onChange={(e) => updateExpense(index, 'amount', e.target.value)}
-                                                />
-                                            ) : `$${expense.amount}`}
-                                        </td>
-                                        <td>
-                                            {isEditing ? (
-                                                <Input
-                                                    type="date"
-                                                    value={expense.date}
-                                                    onChange={(e) => updateExpense(index, 'date', e.target.value)}
-                                                />
-                                            ) : expense.date}
-                                        </td>
-                                        <td>
-                                            {isEditing ? (
-                                                <Select
-                                                    value={expense.trip}
-                                                    onChange={(value) => updateExpense(index, 'trip', value)}
-                                                    options={trips}
-                                                />
-                                            ) : expense.trip}
-                                        </td>
-                                        <td>
-                                            <Button onClick={() => removeExpense(index)}>
-                                                Delete
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                <tr v-for="(expense, index) in expenses" :key="index">
+                                    <td>{{ expense.name }}</td>
+                                    <td>{{ expense.person }}</td>
+                                    <td>\${{ expense.amount.toFixed(2) }}</td>
+                                    <td>{{ expense.date }}</td>
+                                    <td>{{ expense.group }}</td>
+                                    <td>
+                                        <button @click="removeExpense(index)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-
-                    <div className="p-4 border rounded">
-                        <h2 className="text-lg font-semibold mb-2">Settlement</h2>
-                        {calculateSplits().balances.map((balance, index) => (
-                            <div key={index} className="mb-2">
-                                {balance.person}: {balance.balance > 0 
-                                    ? `Gets $${balance.balance.toFixed(2)}` 
-                                    : `Owes $${Math.abs(balance.balance).toFixed(2)}`}
-                            </div>
-                        ))}
-                        <div className="mt-4">
-                            <h3 className="font-semibold mb-2">Transactions to settle:</h3>
-                            {calculateSplits().transactions.map((transaction, index) => (
-                                <div key={index} className="mb-1">
-                                    {transaction.from} pays {transaction.to}: ${transaction.amount}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
-            );
-        };
-
-        ReactDOM.render(<FairTrip />, document.getElementById('root'));
+            `
+        }).mount('#app');
     </script>
 </body>
 </html>
