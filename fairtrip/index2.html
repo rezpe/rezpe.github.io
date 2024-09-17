@@ -86,27 +86,34 @@
                 const toggleEditing = () => {
                     isEditing.value = !isEditing.value;
                     if (isEditing.value) {
-                        // Populate the textarea with the current expenses list in JSON format
-                        bulkEditText.value = JSON.stringify(expenses.value, null, 2);
+                        // Populate the textarea with the current expenses list in single-line format for the selected group
+                        bulkEditText.value = filteredExpenses.value
+                            .map(expense => `${expense.name} ${expense.person} ${expense.amount.toFixed(2)} ${expense.date}`)
+                            .join('\n');
                     }
                 };
 
                 const bulkSave = () => {
                     try {
-                        // Parse the JSON and update expenses
-                        const updatedExpenses = JSON.parse(bulkEditText.value);
+                        // Parse the bulk edit input and update expenses
+                        const updatedExpenses = bulkEditText.value.split('\n').map(line => {
+                            const [name, person, amount, date] = line.split(' ');
+                            return {
+                                name,
+                                person,
+                                amount: parseFloat(amount),
+                                date,
+                                group: selectedGroup.value
+                            };
+                        });
                         
-                        // Validate the updated expenses (optional: more comprehensive validation can be added)
-                        if (Array.isArray(updatedExpenses)) {
-                            expenses.value = updatedExpenses;
-                            saveToLocalStorage();
-                            updateGroupsFromExpenses();
-                            isEditing.value = false; // Exit editing mode
-                        } else {
-                            alert('Invalid format: The input should be a list of expenses.');
-                        }
+                        // Replace only the expenses in the selected group
+                        expenses.value = expenses.value.filter(expense => expense.group !== selectedGroup.value).concat(updatedExpenses);
+                        saveToLocalStorage();
+                        updateGroupsFromExpenses();
+                        isEditing.value = false; // Exit editing mode
                     } catch (error) {
-                        alert('Invalid JSON format. Please correct the errors and try again.');
+                        alert('Error parsing input. Please ensure the format is correct: "Name Person Amount Date".');
                     }
                 };
 
@@ -234,11 +241,12 @@
                     </div>
 
                     <div class="mb-4 p-4 border rounded" v-if="isEditing">
-                        <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses</h2>
+                        <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses ({{ selectedGroup }})</h2>
                         <textarea
                             v-model="bulkEditText"
                             rows="10"
                             class="w-full px-3 py-2 border rounded"
+                            placeholder="Format: ExpenseName Person Amount Date"
                         ></textarea>
                         <button @click="bulkSave" class="w-full px-4 py-2 bg-green-500 text-white rounded mt-2">Save Bulk Edit</button>
                     </div>
