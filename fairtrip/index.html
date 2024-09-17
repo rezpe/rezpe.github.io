@@ -4,164 +4,351 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fair Trip - Expense Splitting App</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
-      }
-    </script>
 </head>
 <body>
-    <div id="root"></div>
+    <div id="app"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
-        const Button = ({ children, onClick, className, variant, size }) => (
-            <button onClick={onClick} className={`px-4 py-2 rounded ${variant === 'ghost' ? 'bg-transparent' : 'bg-blue-500 text-white'} ${size === 'icon' ? 'p-2' : ''} ${className}`}>{children}</button>
-        );
+        createApp({
+            setup() {
+                const expenses = ref([]);
+                const groups = ref([]);
+                const selectedGroup = ref('');
+                const newExpense = reactive({ name: '', person: '', amount: '', date: new Date().toISOString().slice(0, 10), group: '' });
+                const newGroupName = ref('');
+                const isEditing = ref(false);
+                const showConfig = ref(false);
+                const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
+                const bulkEditText = ref('');
 
-        const Input = ({ type, placeholder, value, onChange }) => (
-            <input type={type} placeholder={placeholder} value={value} onChange={onChange} className="w-full px-3 py-2 border rounded" />
-        );
-
-        const Card = ({ children, className }) => (
-            <div className={`bg-white shadow-md rounded-lg ${className}`}>{children}</div>
-        );
-
-        const CardHeader = ({ children }) => <div className="px-4 py-5 border-b border-gray-200 sm:px-6">{children}</div>;
-        const CardTitle = ({ children }) => <h3 className="text-lg leading-6 font-medium text-gray-900">{children}</h3>;
-        const CardContent = ({ children }) => <div className="px-4 py-5 sm:p-6">{children}</div>;
-
-        const FairTrip = () => {
-            const [expenses, setExpenses] = useState([]);
-            const [newExpense, setNewExpense] = useState({ name: '', person: '', amount: '', date: '' });
-
-            useEffect(() => {
-                const storedExpenses = localStorage.getItem('fairTripExpenses');
-                if (storedExpenses) setExpenses(JSON.parse(storedExpenses));
-            }, []);
-
-            useEffect(() => {
-                localStorage.setItem('fairTripExpenses', JSON.stringify(expenses));
-            }, [expenses]);
-
-            const addExpense = () => {
-                if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date) {
-                    setExpenses([...expenses, { ...newExpense, amount: parseFloat(newExpense.amount) }]);
-                    setNewExpense({ name: '', person: '', amount: '', date: '' });
-                }
-            };
-
-            const removeExpense = (index) => {
-                setExpenses(expenses.filter((_, i) => i !== index));
-            };
-
-            const calculateSplits = () => {
-                const totalExpense = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const peopleSet = new Set(expenses.map(exp => exp.person));
-                const perPersonShare = totalExpense / peopleSet.size;
-
-                const balances = Array.from(peopleSet).map(person => {
-                    const paid = expenses.filter(exp => exp.person === person).reduce((sum, exp) => sum + exp.amount, 0);
-                    return { person, balance: paid - perPersonShare };
+                // Load data from localStorage when the component is mounted
+                onMounted(() => {
+                    const storedExpenses = localStorage.getItem('fairTripExpenses');
+                    const storedConfig = localStorage.getItem('fairTripConfig');
+                    if (storedExpenses) {
+                        expenses.value = JSON.parse(storedExpenses);
+                        updateGroupsFromExpenses();
+                    }
+                    if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
                 });
 
-                const transactions = [];
-                const debtors = balances.filter(b => b.balance < 0).sort((a, b) => a.balance - b.balance);
-                const creditors = balances.filter(b => b.balance > 0).sort((a, b) => b.balance - a.balance);
+                // Watch for changes to config and save to localStorage
+                watch(config, () => {
+                    localStorage.setItem('fairTripConfig', JSON.stringify(config));
+                    syncWithAirtable();
+                }, { deep: true });
 
-                while (debtors.length > 0 && creditors.length > 0) {
-                    const debtor = debtors[0];
-                    const creditor = creditors[0];
-                    const amount = Math.min(Math.abs(debtor.balance), creditor.balance);
-                    transactions.push({ from: debtor.person, to: creditor.person, amount: amount.toFixed(2) });
-                    debtor.balance += amount;
-                    creditor.balance -= amount;
-                    if (Math.abs(debtor.balance) < 0.01) debtors.shift();
-                    if (creditor.balance < 0.01) creditors.shift();
-                }
+                const syncWithAirtable = () => {
+                    if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
+                        console.log('Syncing with Airtable...');
+                        // Add Airtable API synchronization logic here
+                    }
+                };
 
-                return { balances, transactions };
-            };
+                const saveToLocalStorage = () => {
+                    localStorage.setItem('fairTripExpenses', JSON.stringify(expenses.value));
+                };
 
-            return (
-                <div className="p-4 max-w-md mx-auto">
-                    <h1 className="text-2xl font-bold mb-4">Fair Trip</h1>
-                    
-                    <Card className="mb-4">
-                        <CardContent>
-                            <p className="text-sm text-gray-600">
-                                Fair Trip helps you split expenses among a group. Add each expense with its name, the person who paid, the amount, and the date. The app will calculate how much each person owes or is owed to ensure everyone pays an equal share. Your expenses are saved automatically and will be available when you reopen the page.
-                            </p>
-                        </CardContent>
-                    </Card>
+                const addExpense = () => {
+                    if (newExpense.name && newExpense.person && newExpense.amount && newExpense.date && newExpense.group) {
+                        expenses.value.push({ ...newExpense, amount: parseFloat(newExpense.amount) });
+                        Object.assign(newExpense, { name: '', person: '', amount: '', date: new Date().toISOString().slice(0, 10), group: '' });
+                        saveToLocalStorage();
+                        updateGroupsFromExpenses();
+                    }
+                };
 
-                    <Card className="mb-4">
-                        <CardHeader>
-                            <CardTitle>Add Expense</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-col space-y-2">
-                                <Input placeholder="Expense Name" value={newExpense.name} onChange={(e) => setNewExpense({...newExpense, name: e.target.value})} />
-                                <Input placeholder="Person" value={newExpense.person} onChange={(e) => setNewExpense({...newExpense, person: e.target.value})} />
-                                <Input type="number" placeholder="Amount" value={newExpense.amount} onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})} />
-                                <Input type="date" value={newExpense.date} onChange={(e) => setNewExpense({...newExpense, date: e.target.value})} />
-                                <Button onClick={addExpense} className="w-full">
-                                    ➕ Add Expense
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                const addGroup = () => {
+                    if (newGroupName.value && !groups.value.includes(newGroupName.value)) {
+                        groups.value.push(newGroupName.value);
+                        newGroupName.value = ''; // Clear the input after adding
+                    }
+                };
 
-                    <Card className="mb-4">
-                        <CardHeader>
-                            <CardTitle>Expenses</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {expenses.map((expense, index) => (
-                                <div key={index} className="flex justify-between items-center mb-2">
-                                    <span>{expense.name}: {expense.person} paid ${expense.amount} on {expense.date}</span>
-                                    <Button variant="ghost" size="icon" onClick={() => removeExpense(index)}>
-                                        🗑️
-                                    </Button>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
+                const updateGroupsFromExpenses = () => {
+                    const uniqueGroups = [...new Set(expenses.value.map(expense => expense.group))];
+                    groups.value = uniqueGroups;
+                    if (!selectedGroup.value && groups.value.length) {
+                        selectedGroup.value = groups.value[0]; // Set the default selected group
+                    }
+                };
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Settlement</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {calculateSplits().balances.map((balance, index) => (
-                                <div key={index} className="mb-2">
-                                    {balance.person}: {balance.balance > 0 
-                                        ? `Gets $${balance.balance.toFixed(2)}` 
-                                        : `Owes $${Math.abs(balance.balance).toFixed(2)}`}
-                                </div>
-                            ))}
-                            <div className="mt-4">
-                                <h3 className="font-semibold mb-2">Transactions to settle:</h3>
-                                {calculateSplits().transactions.map((transaction, index) => (
-                                    <div key={index} className="mb-1">
-                                        {transaction.from} pays {transaction.to}: ${transaction.amount}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                const removeExpense = (index) => {
+                    expenses.value.splice(index, 1);
+                    saveToLocalStorage();
+                    updateGroupsFromExpenses();
+                };
+
+                const toggleEditing = () => {
+                    isEditing.value = !isEditing.value;
+                    if (isEditing.value) {
+                        // Populate the textarea with the current expenses list in single-line format for the selected group
+                        bulkEditText.value = filteredExpenses.value
+                            .map(expense => `${expense.name} ${expense.person} ${expense.amount.toFixed(2)} ${expense.date}`)
+                            .join('\n');
+                    }
+                };
+
+                const bulkSave = () => {
+                    try {
+                        // Parse the bulk edit input and update expenses
+                        const updatedExpenses = bulkEditText.value.split('\n').map(line => {
+                            const [name, person, amount, date] = line.split(' ');
+                            return {
+                                name,
+                                person,
+                                amount: parseFloat(amount),
+                                date,
+                                group: selectedGroup.value
+                            };
+                        });
+                        
+                        // Replace only the expenses in the selected group
+                        expenses.value = expenses.value.filter(expense => expense.group !== selectedGroup.value).concat(updatedExpenses);
+                        saveToLocalStorage();
+                        updateGroupsFromExpenses();
+                        isEditing.value = false; // Exit editing mode
+                    } catch (error) {
+                        alert('Error parsing input. Please ensure the format is correct: "Name Person Amount Date".');
+                    }
+                };
+
+                // Computed property to get filtered expenses by selected group
+                const filteredExpenses = computed(() => {
+                    return expenses.value.filter(expense => expense.group === selectedGroup.value);
+                });
+
+                // Computed property to calculate expenses per person and their balances
+                const expensesPerPerson = computed(() => {
+                    const personExpenses = {};
+
+                    // Calculate total expenses per person in the selected group
+                    filteredExpenses.value.forEach(expense => {
+                        if (!personExpenses[expense.person]) {
+                            personExpenses[expense.person] = { total: 0, balance: 0 };
+                        }
+                        personExpenses[expense.person].total += expense.amount;
+                    });
+
+                    // Calculate the total amount and the fair share per person
+                    const totalAmount = filteredExpenses.value.reduce((sum, expense) => sum + expense.amount, 0);
+                    const numPersons = Object.keys(personExpenses).length;
+                    const fairShare = totalAmount / numPersons;
+
+                    // Calculate balance (how much each person owes or is owed)
+                    Object.keys(personExpenses).forEach(person => {
+                        personExpenses[person].balance = personExpenses[person].total - fairShare;
+                    });
+
+                    return personExpenses;
+                });
+
+                // Computed property to calculate who pays whom
+                const settlements = computed(() => {
+                    const debtors = [];
+                    const creditors = [];
+
+                    // Separate debtors and creditors based on their balances
+                    Object.entries(expensesPerPerson.value).forEach(([person, { balance }]) => {
+                        if (balance < 0) {
+                            debtors.push({ person, balance: Math.abs(balance) }); // Debtors owe money
+                        } else if (balance > 0) {
+                            creditors.push({ person, balance }); // Creditors are owed money
+                        }
+                    });
+
+                    const transactions = [];
+
+                    // Create transactions to settle debts
+                    while (debtors.length > 0 && creditors.length > 0) {
+                        const debtor = debtors[0];
+                        const creditor = creditors[0];
+
+                        const paymentAmount = Math.min(debtor.balance, creditor.balance);
+                        transactions.push({
+                            from: debtor.person,
+                            to: creditor.person,
+                            amount: paymentAmount.toFixed(2)
+                        });
+
+                        // Adjust balances
+                        debtor.balance -= paymentAmount;
+                        creditor.balance -= paymentAmount;
+
+                        // Remove settled debtors or creditors
+                        if (debtor.balance === 0) {
+                            debtors.shift();
+                        }
+                        if (creditor.balance === 0) {
+                            creditors.shift();
+                        }
+                    }
+
+                    return transactions;
+                });
+
+                return {
+                    expenses,
+                    groups,
+                    selectedGroup,
+                    newExpense,
+                    newGroupName,
+                    isEditing,
+                    showConfig,
+                    config,
+                    bulkEditText,
+                    filteredExpenses,
+                    expensesPerPerson,
+                    settlements,
+                    addExpense,
+                    addGroup,
+                    removeExpense,
+                    toggleEditing,
+                    bulkSave
+                };
+            },
+            template: `
+                <div class="p-4 max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h1 class="text-2xl font-bold">Fair Trip</h1>
+                        <div class="flex space-x-2">
+                            <input 
+                                v-model="newGroupName" 
+                                placeholder="New Group Name" 
+                                class="px-2 py-1 border rounded"
+                            />
+                            <button @click="addGroup" class="px-4 py-2 bg-purple-500 text-white rounded">
+                                + 👥 Add Group
+                            </button>
+                            <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
+                            <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
+                                {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div v-if="showConfig" class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Configuration</h2>
+                        <div class="space-y-2">
+                            <input
+                                v-model="config.airtableApiKey"
+                                placeholder="Airtable API Key"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableBaseId"
+                                placeholder="Airtable Base ID"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="config.airtableTableName"
+                                placeholder="Airtable Table Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
+                        <div class="flex flex-col space-y-2">
+                            <select v-model="newExpense.group" class="w-full px-3 py-2 border rounded">
+                                <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
+                            </select>
+                            <input
+                                v-model="newExpense.name"
+                                placeholder="Expense Name"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.person"
+                                placeholder="Person"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.amount"
+                                type="number"
+                                placeholder="Amount"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <input
+                                v-model="newExpense.date"
+                                type="date"
+                                class="w-full px-3 py-2 border rounded"
+                            />
+                            <button @click="addExpense" class="w-full px-4 py-2 bg-blue-500 text-white rounded">
+                                Add Expense
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded" v-if="isEditing">
+                        <h2 class="text-lg font-semibold mb-2">Bulk Edit Expenses ({{ selectedGroup }})</h2>
+                        <textarea
+                            v-model="bulkEditText"
+                            rows="10"
+                            class="w-full px-3 py-2 border rounded"
+                            placeholder="Format: ExpenseName Person Amount Date"
+                        ></textarea>
+                        <button @click="bulkSave" class="w-full px-4 py-2 bg-green-500 text-white rounded mt-2">Save Bulk Edit</button>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Expenses</h2>
+                        <div class="mb-2">
+                            <label for="groupFilter" class="block font-semibold">Select Group:</label>
+                            <select id="groupFilter" v-model="selectedGroup" class="w-full px-3 py-2 border rounded">
+                                <option v-for="group in groups" :key="group" :value="group">{{ group }}</option>
+                            </select>
+                        </div>
+                        
+                        <table class="w-full mt-4">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Person</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(expense, index) in filteredExpenses" :key="index">
+                                    <td>{{ expense.name }}</td>
+                                    <td>{{ expense.person }}</td>
+                                    <td>\${{ expense.amount.toFixed(2) }}</td>
+                                    <td>{{ expense.date }}</td>
+                                    <td>
+                                        <button @click="removeExpense(index)" class="px-2 py-1 bg-red-500 text-white rounded">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Expenses Per Person</h2>
+                        <div v-for="(person, name) in expensesPerPerson" :key="name" class="mb-2">
+                            <strong>{{ name }}</strong>: Spent \${{ person.total.toFixed(2) }}, 
+                            Balance: <span :class="{'text-green-500': person.balance >= 0, 'text-red-500': person.balance < 0}">
+                                {{ person.balance >= 0 ? 'Receives' : 'Owes' }} \${{ Math.abs(person.balance).toFixed(2) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 p-4 border rounded">
+                        <h2 class="text-lg font-semibold">Settlements</h2>
+                        <div v-if="settlements.length === 0">All balances are settled.</div>
+                        <div v-for="(settlement, index) in settlements" :key="index" class="mb-2">
+                            {{ settlement.from }} pays {{ settlement.to }}: \${{ settlement.amount }}
+                        </div>
+                    </div>
                 </div>
-            );
-        };
-
-        ReactDOM.render(<FairTrip />, document.getElementById('root'));
+            `
+        }).mount('#app');
     </script>
 </body>
 </html>
