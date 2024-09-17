@@ -81,18 +81,28 @@
 
                 const toggleEditing = () => {
                     isEditing.value = !isEditing.value;
-                    if (!isEditing.value) {
+                    if (isEditing.value) {
+                        // Populate the textarea with the current expenses list in JSON format
                         bulkEditText.value = JSON.stringify(expenses.value, null, 2);
                     }
                 };
 
                 const bulkSave = () => {
                     try {
-                        expenses.value = JSON.parse(bulkEditText.value);
-                        saveToLocalStorage();
-                        updateGroupsFromExpenses();
+                        // Parse the JSON and update expenses
+                        const updatedExpenses = JSON.parse(bulkEditText.value);
+                        
+                        // Validate the updated expenses (optional: more comprehensive validation can be added)
+                        if (Array.isArray(updatedExpenses)) {
+                            expenses.value = updatedExpenses;
+                            saveToLocalStorage();
+                            updateGroupsFromExpenses();
+                            isEditing.value = false; // Exit editing mode
+                        } else {
+                            alert('Invalid format: The input should be a list of expenses.');
+                        }
                     } catch (error) {
-                        alert('Invalid JSON format');
+                        alert('Invalid JSON format. Please correct the errors and try again.');
                     }
                 };
 
@@ -122,7 +132,9 @@
                                 placeholder="New Group Name" 
                                 class="px-2 py-1 border rounded"
                             />
-                            <button @click="addGroup" class="px-4 py-2 bg-purple-500 text-white rounded">Add Group</button>
+                            <button @click="addGroup" class="px-4 py-2 bg-purple-500 text-white rounded">
+                                + 👥
+                            </button>
                             <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
                             <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
                                 {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
