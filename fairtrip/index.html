@@ -21,33 +21,16 @@
                 const newExpense = reactive({ name: '', person: '', amount: '', date: new Date().toISOString().slice(0, 10), group: '' });
                 const newGroupName = ref('');
                 const isEditing = ref(false);
-                const showConfig = ref(false);
-                const config = reactive({ airtableApiKey: '', airtableBaseId: '', airtableTableName: '' });
                 const bulkEditText = ref('');
 
                 // Load data from localStorage when the component is mounted
                 onMounted(() => {
                     const storedExpenses = localStorage.getItem('fairTripExpenses');
-                    const storedConfig = localStorage.getItem('fairTripConfig');
                     if (storedExpenses) {
                         expenses.value = JSON.parse(storedExpenses);
                         updateGroupsFromExpenses();
                     }
-                    if (storedConfig) Object.assign(config, JSON.parse(storedConfig));
                 });
-
-                // Watch for changes to config and save to localStorage
-                watch(config, () => {
-                    localStorage.setItem('fairTripConfig', JSON.stringify(config));
-                    syncWithAirtable();
-                }, { deep: true });
-
-                const syncWithAirtable = () => {
-                    if (config.airtableApiKey && config.airtableBaseId && config.airtableTableName) {
-                        console.log('Syncing with Airtable...');
-                        // Add Airtable API synchronization logic here
-                    }
-                };
 
                 const saveToLocalStorage = () => {
                     localStorage.setItem('fairTripExpenses', JSON.stringify(expenses.value));
@@ -198,8 +181,6 @@
                     newExpense,
                     newGroupName,
                     isEditing,
-                    showConfig,
-                    config,
                     bulkEditText,
                     filteredExpenses,
                     expensesPerPerson,
@@ -224,31 +205,9 @@
                             <button @click="addGroup" class="px-4 py-2 bg-purple-500 text-white rounded">
                                 + 👥 Add Group
                             </button>
-                            <button @click="showConfig = !showConfig" class="px-4 py-2 bg-blue-500 text-white rounded">⚙️</button>
                             <button @click="toggleEditing" class="px-4 py-2 bg-green-500 text-white rounded">
                                 {{ isEditing ? 'Save Changes' : 'Bulk Edit' }}
                             </button>
-                        </div>
-                    </div>
-
-                    <div v-if="showConfig" class="mb-4 p-4 border rounded">
-                        <h2 class="text-lg font-semibold mb-2">Configuration</h2>
-                        <div class="space-y-2">
-                            <input
-                                v-model="config.airtableApiKey"
-                                placeholder="Airtable API Key"
-                                class="w-full px-3 py-2 border rounded"
-                            />
-                            <input
-                                v-model="config.airtableBaseId"
-                                placeholder="Airtable Base ID"
-                                class="w-full px-3 py-2 border rounded"
-                            />
-                            <input
-                                v-model="config.airtableTableName"
-                                placeholder="Airtable Table Name"
-                                class="w-full px-3 py-2 border rounded"
-                            />
                         </div>
                     </div>
 
