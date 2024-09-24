@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time QR Code Text Transfer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://docs.opencv.org/4.9.0/opencv.js" onload="onOpenCvReady();"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="app" class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-8 text-center text-blue-600">Real-time QR Code Text Transfer</h1>
+        
+        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Text Input/Output</h2>
+            <textarea 
+                v-model="textContent" 
+                @input="updateQRCode" 
+                class="w-full h-48 p-2 border rounded-md" 
+                :maxlength="maxChars"
+                placeholder="Enter your text here (max 1800 characters)"
+            ></textarea>
+            <p class="text-sm text-gray-600 mt-2">{{ charCount }}/{{ maxChars }} characters</p>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">QR Code</h2>
+            <div id="qrcode" class="mt-4"></div>
+        </div>
+
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">Read QR Code</h2>
+            <input type="file" ref="imageInput" @change="handleImageInput" accept="image/*" capture="environment" class="hidden">
+            <button @click="openImageInput" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Capture QR Code
+            </button>
+        </div>
+    </div>
+
+    <script>
+    function onOpenCvReady() {
+        cv['onRuntimeInitialized'] = () => {
+            const { createApp, ref, onMounted, watch } = Vue;
+
+            createApp({
+                setup() {
+                    const maxChars = 1800;
+                    const textContent = ref('');
+                    const charCount = ref(0);
+                    const imageInput = ref(null);
+
+                    function updateQRCode() {
+                        charCount.value = textContent.value.length;
+                        generateQRCode();
+                    }
+
+                    function generateQRCode() {
+                        const qrcodeDiv = document.getElementById('qrcode');
+                        qrcodeDiv.innerHTML = '';
+                        if (textContent.value.trim() !== '') {
+                            const qr = generateQR(textContent.value, 0);
+                            qrcodeDiv.appendChild(qr);
+                        }
+                    }
+
+                    function generateQR(data, version) {
+                        const qr = qrcode(version, 'L');
+                        qr.addData(data);
+                        qr.make();
+                        const qrImage = qr.createImgTag(5);
+                        const container = document.createElement('div');
+                        container.innerHTML = qrImage;
+                        return container.firstChild;
+                    }
+
+                    function openImageInput() {
+                        imageInput.value.click();
+                    }
+
+                    function handleImageInput(event) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                const img = new Image();
+                                img.onload = () => {
+                                    processImage(img);
+                                };
+                                img.src = e.target.result;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+
+                    function processImage(img) {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, img.width, img.height);
+
+                        const src = cv.imread(canvas);
+                        const qcd = new cv.QRCodeDetector();
+                        const decodedInfo = new cv.StringVector();
+                        const points = new cv.Mat();
+                        const straightQrCode = new cv.MatVector();
+
+                        const success = qcd.detectAndDecodeMulti(src, decodedInfo, points, straightQrCode);
+
+                        if (success) {
+                            for (let i = 0; i < decodedInfo.size(); i++) {
+                                const s = decodedInfo.get(i);
+                                textContent.value = s.toString();
+                                updateQRCode();
+                            }
+                        } else {
+                            console.log("No QR code found");
+                        }
+
+                        qcd.delete();
+                        points.delete();
+                        straightQrCode.delete();
+                        src.delete();
+                    }
+
+                    onMounted(() => {
+                        updateQRCode();
+                    });
+
+                    watch(textContent, () => {
+                        updateQRCode();
+                    });
+
+                    return {
+                        maxChars,
+                        textContent,
+                        charCount,
+                        imageInput,
+                        updateQRCode,
+                        openImageInput,
+                        handleImageInput
+                    };
+                }
+            }).mount('#app');
+        };
+    }
+    </script>
+</body>
+</html>
