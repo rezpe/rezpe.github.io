@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap');
+
+body {
+    font-family: 'Didact Gothic', sans-serif;
+}
+
+input {
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+
+input[placeholder='Dish Name'] {
+    font-size: 15px;
+}
+
+input[placeholder='Ingredients'],
+input[placeholder='Breakfast Ingredients'] {
+    font-size: 10px;
+    font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .grid-cols-7 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
