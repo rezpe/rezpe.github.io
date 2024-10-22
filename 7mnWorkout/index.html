@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7-Minute Workout</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-white text-black">
+    <div id="app" class="app-container">
+        <!-- Home Screen -->
+        <div v-if="screen === 'home'" class="app-container">
+            <div class="title-area">
+                <h1 class="text-3xl font-bold">7-Minute Workout</h1>
+            </div>
+            <div class="content-area">
+                <img src="img/workout.png" alt="Workout Icon" class="content-image">
+            </div>
+            <div class="button-area">
+                <button @click="startWorkout" class="bg-blue-500 text-white py-2 px-4 rounded mr-2">Start</button>
+                <button @click="goToAchievements" class="bg-blue-500 text-white py-2 px-4 rounded">Achievements</button>
+            </div>
+        </div>
+
+        <!-- Workout Screen -->
+        <div v-if="screen === 'workout'" class="app-container">
+            <div class="title-area">
+                <h1 class="text-2xl font-bold">7-Minute Workout: {{ currentExercise.name }}</h1>
+                <button @click="cancelWorkout" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-red-600">❌</button>
+            </div>
+            <div class="content-area">
+                <div class="video-container mb-4">
+                    <video :src="currentExercise.icon" autoplay loop muted class="circular-video"></video>
+                    <svg class="progress-arc" viewBox="0 0 100 100">
+                        <path :d="calculateArcPath()" fill="red" stroke-width="0"></path>
+                    </svg>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">{{ formatTime(timeRemaining) }}</div>
+                    <div class="text-xl mb-4">Next: {{ upcomingExercise.name }}</div>
+                </div>
+            </div>
+            <div class="progress-bar-area">
+                <div class="progress-bar">
+                    <div class="progress-fill" :style="{ width: progressWidth }"></div>
+                </div>
+            </div>
+            <div class="button-area">
+                <button @click="prevExercise" class="bg-white text-white py-2 px-4 rounded mr-2">⬅️</button>
+                <button @click="togglePause" class="bg-white text-white py-2 px-4 rounded mr-2">{{ isPaused ? '🏃' : '⏸️' }}</button>
+                <button @click="nextExercise" class="bg-white text-white py-2 px-4 rounded">➡️</button>
+            </div>
+        </div>
+
+        <!-- Congratulations Screen -->
+        <div v-if="screen === 'congratulations'" class="app-container">
+            <div class="title-area">
+                <h1 class="text-3xl font-bold">Congratulations</h1>
+            </div>
+            <div class="content-area">
+                <img src="img/trophy.png" alt="Trophy Icon" class="content-image mb-4">
+                <div>{{ completionDate }}</div>
+            </div>
+            <div class="button-area">
+                <button @click="goBack" class="bg-blue-500 text-white py-2 px-4 rounded">Back</button>
+            </div>
+        </div>
+
+        <!-- Achievements Screen -->
+        <div v-if="screen === 'achievements'" class="app-container">
+            <div class="title-area">
+                <h1 class="text-3xl font-bold">Achievements</h1>
+                <button @click="clearAchievements" class="trash-button">🗑️</button>
+            </div>
+            <div class="content-area">
+                <ul>
+                    <li v-for="achievement in achievements" :key="achievement" class="text-xl mb-2">
+                        {{ achievement }}
+                    </li>
+                </ul>
+            </div>
+            <div class="button-area">
+                <button @click="goBack" class="bg-blue-500 text-white py-2 px-4 rounded">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
