@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Parser & Scheduler</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div id="app" class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Task Scheduler</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Input Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Tasks</h2>
+                <div class="mb-4 text-sm text-gray-600">
+                    Supports both tab and 4-space indentation
+                </div>
+                <textarea 
+                    v-model="inputText"
+                    @input="parseInput"
+                    class="w-full h-48 p-4 border rounded-lg font-mono text-sm mb-6"
+                    placeholder="Enter your tasks here..."
+                ></textarea>
+
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Meetings</h2>
+                <div class="mb-4 text-sm text-gray-600">
+                    Format: HH:MM-HH:MM Meeting description
+                </div>
+                <textarea 
+                    v-model="meetingsText"
+                    @input="parseInput"
+                    class="w-full h-32 p-4 border rounded-lg font-mono text-sm mb-6"
+                    placeholder="8:00-9:00 Clean kitchen"
+                ></textarea>
+
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Deadlines</h2>
+                <div class="mb-4 text-sm text-gray-600">
+                    Format: HH:MM Deadline description
+                </div>
+                <textarea 
+                    v-model="deadlinesText"
+                    @input="parseInput"
+                    class="w-full h-32 p-4 border rounded-lg font-mono text-sm"
+                    placeholder="10:00 Project Delivery"
+                ></textarea>
+            </div>
+
+            <!-- Schedule Canvas Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Visual Schedule</h2>
+                <canvas id="scheduleCanvas" width="500" height="800"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createTaskGroup(task, options) {
+            const rect = new fabric.Rect({
+                width: options.width,
+                height: options.height,
+                fill: task.hasFireEmoji ? '#DBEAFE' : '#F0FDF4', // Light blue for fire tasks, light green for regular
+                stroke: task.hasFireEmoji ? '#3B82F6' : '#059669', // Blue for fire tasks, green for regular
+                strokeWidth: 2,
+                rx: 8,
+                ry: 8
+            });
+
+            const text = new fabric.Text(task.path, {
+                fontSize: 14,
+                fill: task.hasFireEmoji ? '#1E40AF' : '#065F46', // Darker blue/green for text
+                left: 10,
+                top: 10,
+                width: options.width - 20
+            });
+
+            const durationText = new fabric.Text(`${task.duration}mn`, {
+                fontSize: 12,
+                fill: task.hasFireEmoji ? '#1E40AF' : '#065F46',
+                left: options.width - 60,
+                top: options.height - 20
+            });
+
+            return new fabric.Group([rect, text, durationText], {
+                left: options.left,
+                top: options.top,
+                selectable: true,
+                hasControls: false,
+                hasBorders: false,
+                hoverCursor: 'move',
+                lockRotation: true,
+                lockScalingX: true,
+                lockScalingY: true,
+                lockMovementX: true
+            });
+        }
+
+        function createMeetingBox(meeting, options) {
+            const rect = new fabric.Rect({
+                width: options.width,
+                height: options.height,
+                fill: '#FEE2E2', // Light red for meetings
+                stroke: '#DC2626', // Red border
+                strokeWidth: 2,
+                rx: 8,
+                ry: 8
+            });
+
+            const text = new fabric.Text(`${meeting.start}-${meeting.end}\n${meeting.title}`, {
+                fontSize: 14,
+                fill: '#991B1B', // Darker red for text
+                left: 10,
+                top: 10,
+                width: options.width - 20
+            });
+
+            return new fabric.Group([rect, text], {
+                left: options.left,
+                top: options.top,
+                selectable: false,
+                hasControls: false,
+                hasBorders: false,
+                hoverCursor: 'default'
+            });
+        }
+
+        function createDeadlineLine(deadline, options) {
+            const line = new fabric.Line([
+                options.left,
+                options.top,
+                options.left + options.width,
+                options.top
+            ], {
+                stroke: '#7C3AED', // Purple for deadlines
+                strokeWidth: 2,
+                selectable: false,
+                hasControls: false,
+                hasBorders: false
+            });
+
+            const text = new fabric.Text(`${deadline.time} ${deadline.title}`, {
+                left: options.left + 10,
+                top: options.top - 20,
+                fontSize: 14,
+                fill: '#5B21B6', // Darker purple for text
+                selectable: false,
+                hasControls: false,
+                hasBorders: false
+            });
+
+            return [line, text];
+        }
+
+        function parseTaskList(text) {
+            const lines = text.split('\n').filter(line => line.trim());
+            const parsedTasks = [];
+            const stack = [];
+            
+            const getIndentationLevel = (line) => {
+                const normalizedLine = line.replace(/\t/g, '    ');
+                const match = normalizedLine.match(/^( *)/);
+                if (!match) return 0;
+                return Math.floor(match[0].length / 4);
+            };
+            
+            const cleanTaskName = (task) => {
+                return task.replace(/^[ \t]+/, '').trim();
+            };
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const currentLevel = getIndentationLevel(line);
+                const taskName = cleanTaskName(line);
+                
+                while (stack.length > currentLevel) {
+                    stack.pop();
+                }
+                
+                stack[currentLevel] = taskName;
+                
+                if (line.includes('e:')) {
+                    const fullPath = stack.slice(0, currentLevel + 1).join(' > ');
+                    const timeMatch = line.match(/e:(\d+)mn/);
+                    const duration = timeMatch ? parseInt(timeMatch[1]) : 0;
+                    
+                    parsedTasks.push({
+                        path: fullPath,
+                        duration: duration,
+                        hasFireEmoji: line.includes('🔥')
+                    });
+                }
+            }
+            
+            return parsedTasks;
+        }
+
+        function parseMeetings(text) {
+            if (!text.trim()) return [];
+            const lines = text.split('\n').filter(line => line.trim());
+            return lines.map(line => {
+                const match = line.match(/(\d{1,2}:\d{2})-(\d{1,2}:\d{2})\s+(.*)/);
+                if (match) {
+                    return {
+                        start: match[1],
+                        end: match[2],
+                        title: match[3]
+                    };
+                }
+                return null;
+            }).filter(meeting => meeting !== null);
+        }
+
+        function parseDeadlines(text) {
+            if (!text.trim()) return [];
+            const lines = text.split('\n').filter(line => line.trim());
+            return lines.map(line => {
+                const match = line.match(/(\d{1,2}:\d{2})\s+(.*)/);
+                if (match) {
+                    return {
+                        time: match[1],
+                        title: match[2]
+                    };
+                }
+                return null;
+            }).filter(deadline => deadline !== null);
+        }
+
+        const { createApp, ref, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // Constants moved to component scope
+                const startX = 80;
+                const startY = 50;
+                const boxWidth = 380;
+                const minuteHeight = 1.5;
+
+                const inputText = ref(`Henkel MVP 2.0
+    Discuss with counterpart e:40mn 🔥
+    Get the new things to watch 🔥
+        Make it happen e:30mn
+        Go to Park e:60mn
+    Borrow things 🔥
+        Meet people
+            Go to the meetup e:50mn
+            Send email e:5mn`);
+                
+                const meetingsText = ref('9:00-10:00 Morning Standup\n14:00-15:00 Team Meeting');
+                const deadlinesText = ref('12:00 Daily Report Due\n16:00 Project Deadline');
+                const canvas = ref(null);
+                const parsedTasks = ref([]);
+                const parsedMeetings = ref([]);
+                const parsedDeadlines = ref([]);
+
+                const timeToY = (timeStr, baseY, minuteHeight) => {
+                    const [hours, minutes] = timeStr.split(':').map(Number);
+                    return baseY + ((hours - 9) * 60 + minutes) * minuteHeight;
+                };
+
+                const createSchedule = (tasks) => {
+                    if (!canvas.value) return;
+                    canvas.value.clear();
+                    
+                    let currentY = startY;
+
+                    // Time markers and grid
+                    for (let hour = 9; hour <= 17; hour++) {
+                        const text = new fabric.Text(`${hour}:00`, {
+                            left: 20,
+                            top: startY + (hour - 9) * 60 * minuteHeight,
+                            fontSize: 14,
+                            fill: '#666',
+                            selectable: false,
+                            hasControls: false,
+                            hasBorders: false,
+                            hoverCursor: 'default'
+                        });
+                        canvas.value.add(text);
+
+                        const line = new fabric.Line([
+                            startX, 
+                            startY + (hour - 9) * 60 * minuteHeight,
+                            startX + boxWidth,
+                            startY + (hour - 9) * 60 * minuteHeight
+                        ], {
+                            stroke: '#ddd',
+                            strokeWidth: 1,
+                            selectable: false,
+                            hasControls: false,
+                            hasBorders: false,
+                            hoverCursor: 'default'
+                        });
+                        canvas.value.add(line);
+                    }
+
+                    // Add meetings
+                    parsedMeetings.value.forEach(meeting => {
+                        const meetingStartY = timeToY(meeting.start, startY, minuteHeight);
+                        const endY = timeToY(meeting.end, startY, minuteHeight);
+                        const height = endY - meetingStartY;
+                        
+                        const meetingBox = createMeetingBox(meeting, {
+                            left: startX,
+                            top: meetingStartY,
+                            width: boxWidth,
+                            height: height
+                        });
+                        canvas.value.add(meetingBox);
+                    });
+
+                    // Add deadlines
+                    parsedDeadlines.value.forEach(deadline => {
+                        const y = timeToY(deadline.time, startY, minuteHeight);
+                        const [line, text] = createDeadlineLine(deadline, {
+                            left: startX,
+                            top: y,
+                            width: boxWidth
+                        });
+                        canvas.value.add(line);
+                        canvas.value.add(text);
+                    });
+
+                    // Add tasks
+                    tasks.forEach((task) => {
+                        const height = task.duration * minuteHeight;
+                        
+                        const taskGroup = createTaskGroup(task, {
+                            left: startX,
+                            top: currentY,
+                            width: boxWidth,
+                            height: height
+                        });
+
+                        canvas.value.add(taskGroup);
+                        currentY += height + 10;
+                    });
+
+                    canvas.value.renderAll();
+                };
+
+                const parseInput = () => {
+                    parsedTasks.value = parseTaskList(inputText.value);
+                    parsedMeetings.value = parseMeetings(meetingsText.value);
+                    parsedDeadlines.value = parseDeadlines(deadlinesText.value);
+                    createSchedule(parsedTasks.value);
+                };
+
+                onMounted(() => {
+                    canvas.value = new fabric.Canvas('scheduleCanvas', {
+                        backgroundColor: 'white'
+                    });
+                    
+                    canvas.value.on('object:moving', function(e) {
+                        const gridSize = 10;
+                        const target = e.target;
+                        target.set({
+                            left: startX,
+                            top: Math.round(target.top / gridSize) * gridSize
+                        });
+                    });
+
+                    parseInput();
+                });
+
+                return {
+                    inputText,
+                    meetingsText,
+                    deadlinesText,
+                    parseInput
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
