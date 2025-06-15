@@ -7,6 +7,7 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/airtable@0.12.2/lib/airtable.umd.min.js"></script>
     <style>
         .note-card {
             transition: all 0.3s ease;
@@ -51,21 +52,6 @@
             background: rgba(0, 0, 0, 0.1);
             color: rgba(0, 0, 0, 0.6);
         }
-        .color-circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .color-circle:hover {
-            transform: scale(1.1);
-        }
-        .color-circle.selected {
-            border-color: #374151;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -77,9 +63,19 @@
                     <div class="flex items-center space-x-3">
                         <i class="fas fa-sticky-note text-yellow-500 text-2xl"></i>
                         <h1 class="text-xl font-semibold text-gray-900">My Notes</h1>
+                        <button
+                            @click="openSettings"
+                            class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Settings"
+                        >
+                            <i class="fas fa-cog"></i>
+                        </button>
                     </div>
                     <div class="text-sm text-gray-500">
                         {{ notes.length }} {{ notes.length === 1 ? 'note' : 'notes' }}
+                        <span v-if="airtableConfig.enabled" class="ml-2 text-blue-500">
+                            <i class="fas fa-cloud"></i> Synced
+                        </span>
                     </div>
                 </div>
             </div>
@@ -241,24 +237,8 @@
                             </div>
                         </div>
 
-                        <!-- Color Palette -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-sm text-gray-600 mr-2">Color:</span>
-                                <div class="flex space-x-2">
-                                    <div
-                                        v-for="color in availableColors"
-                                        :key="color.value"
-                                        @click="newNote.color = color.value"
-                                        :class="[
-                                            'color-circle',
-                                            color.class,
-                                            { 'selected': newNote.color === color.value }
-                                        ]"
-                                        :title="color.name"
-                                    ></div>
-                                </div>
-                            </div>
+                        <!-- Add Note Button -->
+                        <div class="flex justify-end">
                             <button
                                 @click="addNote"
                                 :disabled="!canAddNote"
@@ -300,8 +280,7 @@
                     <div
                         v-for="note in filteredNotes"
                         :key="note.id"
-                        :class="getNoteColorClass(note.color)"
-                        class="note-card rounded-lg border border-gray-200 p-4 cursor-pointer relative group"
+                        class="note-card bg-white rounded-lg border border-gray-200 p-4 cursor-pointer relative group"
                         @click="editNote(note)"
                     >
                         <!-- Note Type Badge -->
@@ -387,46 +366,170 @@
                                 ></textarea>
                             </div>
 
-                            <div class="space-y-3">
-                                <!-- Color Palette for Edit -->
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-xs text-gray-600">Color:</span>
-                                    <div class="flex space-x-1">
-                                        <div
-                                            v-for="color in availableColors"
-                                            :key="color.value"
-                                            @click="editingNote.color = color.value"
-                                            :class="[
-                                                'color-circle',
-                                                color.class,
-                                                { 'selected': editingNote.color === color.value }
-                                            ]"
-                                            :title="color.name"
-                                            style="width: 24px; height: 24px;"
-                                        ></div>
-                                    </div>
-                                </div>
-                                <!-- Action Buttons -->
-                                <div class="flex justify-end space-x-2">
-                                    <button
-                                        @click="cancelEdit"
-                                        class="px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        @click="saveEdit"
-                                        class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                        Save
-                                    </button>
-                                </div>
+                            <!-- Action Buttons -->
+                            <div class="flex justify-end space-x-2">
+                                <button
+                                    @click="cancelEdit"
+                                    class="px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    @click="saveEdit"
+                                    class="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                                >
+                                    Save
+                                </button>
                             </div>
                         </div>
                     </div>
                 </transition-group>
             </div>
         </main>
+
+        <!-- Settings Modal -->
+        <div v-if="showSettings" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeSettings">
+            <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4" @click.stop>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Airtable Settings</h3>
+                    <button @click="closeSettings" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Airtable API Key</label>
+                        <input
+                            v-model="airtableConfig.apiKey"
+                            type="password"
+                            placeholder="Enter your Airtable API key"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">
+                            Get your API key from <a href="https://airtable.com/account" target="_blank" class="text-blue-500 hover:underline">Airtable Account</a>
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Base ID</label>
+                        <input
+                            v-model="airtableConfig.baseId"
+                            type="text"
+                            placeholder="Enter your Airtable Base ID"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">
+                            Find this in your Airtable URL: airtable.com/app/[BASE_ID]/...
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Table Name</label>
+                        <input
+                            v-model="airtableConfig.tableName"
+                            type="text"
+                            placeholder="Enter table name (default: Notes)"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+                    
+                    <!-- Field IDs Configuration -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-yellow-900 mb-2">Field IDs (Required for Attachments)</h4>
+                        <p class="text-xs text-yellow-700 mb-3">You need to find your field IDs in Airtable. Go to your table, click on a field header, and copy the field ID from the URL or API documentation.</p>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-yellow-800 mb-1">Image Field ID</label>
+                                <input
+                                    v-model="airtableConfig.imageFieldId"
+                                    type="text"
+                                    placeholder="e.g., fldImageFieldId"
+                                    class="w-full px-2 py-1 text-sm border border-yellow-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-transparent"
+                                >
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-yellow-800 mb-1">Audio Field ID</label>
+                                <input
+                                    v-model="airtableConfig.audioFieldId"
+                                    type="text"
+                                    placeholder="e.g., fldAudioFieldId"
+                                    class="w-full px-2 py-1 text-sm border border-yellow-300 rounded focus:ring-1 focus:ring-yellow-500 focus:border-transparent"
+                                >
+                            </div>
+                        </div>
+                        
+                        <p class="text-xs text-yellow-600 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Field IDs start with "fld" and are required for image and voice note attachments to work properly.
+                        </p>
+                        <p class="text-xs text-yellow-600 mt-1">
+                            <i class="fas fa-question-circle mr-1"></i>
+                            To find field IDs: Go to your Airtable table → Click on a field header → Look at the URL or check the API documentation for the field ID.
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <input
+                            v-model="airtableConfig.enabled"
+                            type="checkbox"
+                            id="enableAirtable"
+                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        >
+                        <label for="enableAirtable" class="text-sm text-gray-700">Enable Airtable sync</label>
+                    </div>
+                    
+                    <div class="flex space-x-2 pt-4">
+                        <button
+                            @click="testConnection"
+                            :disabled="!airtableConfig.apiKey || !airtableConfig.baseId"
+                            class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <i class="fas fa-plug mr-2"></i>Test Connection
+                        </button>
+                        <button
+                            @click="debugConnection"
+                            :disabled="!airtableConfig.apiKey || !airtableConfig.baseId"
+                            class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <i class="fas fa-bug mr-2"></i>Debug
+                        </button>
+                        <button
+                            @click="saveSettings"
+                            class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            <i class="fas fa-save mr-2"></i>Save
+                        </button>
+                    </div>
+                    
+                    <div v-if="connectionStatus" class="mt-4 p-3 rounded-lg" 
+                    :class="connectionStatus.success
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'">
+                        <i :class="(connectionStatus.success ? 'fas fa-check-circle' : 'fas fa-exclamation-circle') + ' mr-2'"></i>
+                        {{ connectionStatus.message }}
+                    </div>
+
+                    <!-- Table Structure Information -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-blue-900 mb-2">Required Table Structure</h4>
+                        <p class="text-xs text-blue-700 mb-2">Your Airtable table should have these fields:</p>
+                        <ul class="text-xs text-blue-700 space-y-1">
+                            <li><strong>title</strong> - Single line text</li>
+                            <li><strong>text</strong> - Long text</li>
+                            <li><strong>image</strong> - <strong>Attachment field</strong> (for images) - Field ID required above</li>
+                            <li><strong>audio</strong> - <strong>Attachment field</strong> (for voice recordings) - Field ID required above</li>
+                            <li><strong>date</strong> - Date field</li>
+                        </ul>
+                        <p class="text-xs text-blue-600 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Make sure to set the <strong>image</strong> and <strong>audio</strong> fields as "Attachment" type in Airtable for proper file handling.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Image Modal -->
         <div v-if="showImageModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" @click="closeImageModal">
@@ -457,7 +560,6 @@
                     type: 'text',
                     title: '',
                     content: '',
-                    color: 'white',
                     audioBlob: null,
                     audioUrl: null,
                     imageUrl: null
@@ -482,27 +584,697 @@
                 const showImageModal = ref(false);
                 const modalImageUrl = ref('');
 
-                // Available colors for notes
-                const availableColors = [
-                    { value: 'white', name: 'Default', class: 'bg-white border-gray-300' },
-                    { value: 'yellow', name: 'Yellow', class: 'bg-yellow-200' },
-                    { value: 'green', name: 'Green', class: 'bg-green-200' },
-                    { value: 'blue', name: 'Blue', class: 'bg-blue-200' },
-                    { value: 'pink', name: 'Pink', class: 'bg-pink-200' },
-                    { value: 'purple', name: 'Purple', class: 'bg-purple-200' }
-                ];
+                // Settings
+                const showSettings = ref(false);
+                const airtableConfig = ref({
+                    enabled: false,
+                    apiKey: '',
+                    baseId: '',
+                    tableName: 'Notes',
+                    imageFieldId: '',
+                    audioFieldId: ''
+                });
+                const connectionStatus = ref(null);
 
-                // Load notes from localStorage
-                const loadNotes = () => {
-                    const saved = localStorage.getItem('keepCloneNotesEnhanced');
-                    if (saved) {
-                        notes.value = JSON.parse(saved);
+                // Airtable instance
+                let airtableBase = null;
+                let airtableTable = null;
+
+                // --- Fixed Airtable Attachment Upload Helpers ---
+                const dataURLtoBlob = (dataURL) => {
+                    const [header, base64] = dataURL.split(',');
+                    const mime = header.match(/:(.*?);/)[1];
+                    const binary = atob(base64);
+                    const len = binary.length;
+                    const u8 = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        u8[i] = binary.charCodeAt(i);
+                    }
+                    return new Blob([u8], { type: mime });
+                };
+
+                // Convert blob to base64
+                const blobToBase64 = (blob) => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const dataURL = reader.result;
+                            const base64 = dataURL.split(',')[1];
+                            resolve(base64);
+                        };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                };
+
+                // Upload attachment using the correct Airtable Upload Attachment API
+                const uploadAttachmentToRecord = async (recordId, blob, filename, fieldId) => {
+                    if (!airtableConfig.value.apiKey || !airtableConfig.value.baseId) {
+                        throw new Error('Airtable not configured');
+                    }
+                    
+                    // Convert blob to base64
+                    const base64String = await blobToBase64(blob);
+                    
+                    // Use the correct endpoint from the official documentation
+                    const url = `https://content.airtable.com/v0/${airtableConfig.value.baseId}/${recordId}/${fieldId}/uploadAttachment`;
+                    
+                    const payload = {
+                        contentType: blob.type,
+                        file: base64String,
+                        filename: filename
+                    };
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${airtableConfig.value.apiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Attachment upload failed: ${response.status} ${response.statusText} - ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    return result;
+                };
+
+                // Get field IDs for attachment fields (you'll need to replace these with your actual field IDs)
+                const getFieldIds = () => {
+                    // Use configured field IDs or fallback to defaults
+                    return {
+                        image: airtableConfig.value.imageFieldId || 'fldImageFieldId',
+                        audio: airtableConfig.value.audioFieldId || 'fldAudioFieldId'
+                    };
+                };
+                // -------------------------------------------
+
+                // Initialize Airtable
+                const initializeAirtable = () => {
+                    if (airtableConfig.value.enabled && airtableConfig.value.apiKey && airtableConfig.value.baseId) {
+                        try {
+                            // Configure Airtable globally
+                            Airtable.configure({
+                                apiKey: airtableConfig.value.apiKey,
+                                endpointUrl: 'https://api.airtable.com',
+                                requestTimeout: 300000
+                            });
+
+                            // Initialize base and table
+                            airtableBase = Airtable.base(airtableConfig.value.baseId);
+                            airtableTable = airtableBase(airtableConfig.value.tableName);
+                            
+                            return true;
+                        } catch (error) {
+                            console.error('Failed to initialize Airtable:', error);
+                            return false;
+                        }
+                    }
+                    return false;
+                };
+
+                // Load notes from Airtable
+                const loadNotes = async () => {
+                    if (initializeAirtable()) {
+                        try {
+                            await loadFromAirtable();
+                        } catch (error) {
+                            console.error('Failed to load from Airtable:', error);
+                            // Show error message to user
+                            alert('Failed to load notes from Airtable. Please check your connection and try again.');
+                            notes.value = [];
+                        }
+                    } else {
+                        // If Airtable is not configured, show empty state
+                        notes.value = [];
                     }
                 };
 
-                // Save notes to localStorage
-                const saveNotes = () => {
-                    localStorage.setItem('keepCloneNotesEnhanced', JSON.stringify(notes.value));
+                // Load from Airtable using Airtable.js
+                const loadFromAirtable = async () => {
+                    return new Promise((resolve, reject) => {
+                        const allRecords = [];
+                        airtableTable.select({
+                            view: 'Grid view',
+                            sort: [{ field: 'date', direction: 'desc' }]
+                        })
+                        .eachPage(
+                            function page(records, fetchNextPage) {
+                                records.forEach(record => {
+                                    // Handle attachment fields properly
+                                    const imageField = record.get('image');
+                                    const audioField = record.get('audio');
+                                    
+                                    let imageUrl = null;
+                                    let audioUrl = null;
+                                    
+                                    // Extract URL from attachment field
+                                    if (imageField && imageField.length > 0) {
+                                        imageUrl = imageField[0].url;
+                                    }
+                                    
+                                    if (audioField && audioField.length > 0) {
+                                        audioUrl = audioField[0].url;
+                                    }
+                                    
+                                    allRecords.push({
+                                        id: record.id,
+                                        type: imageUrl ? 'image' : (audioUrl ? 'voice' : 'text'),
+                                        title: record.get('title') || '',
+                                        content: record.get('text') || '',
+                                        audioUrl: audioUrl,
+                                        imageUrl: imageUrl,
+                                        createdAt: record.get('date') ? new Date(record.get('date')) : new Date(record.createdTime),
+                                        updatedAt: record.get('date') ? new Date(record.get('date')) : new Date(record.createdTime)
+                                    });
+                                });
+                                fetchNextPage();
+                            },
+                            function done(err) {
+                                if (err) {
+                                    reject(err);
+                                } else {
+                                    notes.value = allRecords;
+                                    resolve();
+                                }
+                            }
+                        );
+                    });
+                };
+
+                // Save notes to Airtable
+                const saveNotes = async () => {
+                    if (airtableConfig.value.enabled && airtableConfig.value.apiKey && airtableConfig.value.baseId) {
+                        try {
+                            // This function is no longer needed as we handle individual note operations
+                            console.log('Individual note operations are handled separately');
+                        } catch (error) {
+                            console.error('Failed to save to Airtable:', error);
+                            alert('Failed to save notes to Airtable. Please check your connection and try again.');
+                        }
+                    } else {
+                        console.warn('Airtable not configured, notes not saved');
+                    }
+                };
+
+                // Delete note from Airtable
+                const deleteNoteFromAirtable = async (id) => {
+                    if (!airtableTable) {
+                        throw new Error('Airtable not initialized');
+                    }
+
+                    try {
+                        await airtableTable.destroy(id);
+                    } catch (error) {
+                        console.error('Failed to delete note from Airtable:', error);
+                        throw error;
+                    }
+                };
+
+                // Create single note in Airtable
+                const createNoteInAirtable = async (note) => {
+                    if (!airtableTable) {
+                        throw new Error('Airtable not initialized');
+                    }
+                    
+                    try {
+                        // Step 1: Create the record first without attachments
+                        const recordData = {
+                            title: note.title,
+                            text: note.content,
+                            date: note.createdAt.toISOString().slice(0, 10)
+                        };
+
+                        const record = await airtableTable.create([{ fields: recordData }]);
+                        const recordId = record[0].id;
+                        
+                        // Step 2: Upload attachments if they exist
+                        const fieldIds = getFieldIds();
+                        
+                        // Handle image attachment
+                        if (note.type === 'image' && note.imageUrl) {
+                            try {
+                                let blob;
+                                if (note.imageUrl.startsWith('data:')) {
+                                    // Convert data URL to blob
+                                    blob = dataURLtoBlob(note.imageUrl);
+                                } else if (note.imageUrl.startsWith('blob:')) {
+                                    // Convert blob URL to actual blob
+                                    const response = await fetch(note.imageUrl);
+                                    blob = await response.blob();
+                                } else {
+                                    // Direct URL (shouldn't happen in your app, but good to handle)
+                                    console.warn('Direct URL detected for image, skipping upload');
+                                    return recordId;
+                                }
+                                
+                                // Upload attachment to the created record
+                                await uploadAttachmentToRecord(recordId, blob, `image_${Date.now()}.png`, fieldIds.image);
+                                console.log('Image attachment uploaded successfully');
+                            } catch (attachmentError) {
+                                console.error('Failed to upload image attachment:', attachmentError);
+                                // Don't fail the entire operation, just log the error
+                            }
+                        }
+
+                        // Handle audio attachment
+                        if (note.type === 'voice' && note.audioUrl) {
+                            try {
+                                let blob;
+                                if (note.audioUrl.startsWith('blob:')) {
+                                    // Convert blob URL to actual blob
+                                    const response = await fetch(note.audioUrl);
+                                    blob = await response.blob();
+                                } else if (note.audioUrl.startsWith('data:')) {
+                                    // Convert data URL to blob
+                                    blob = dataURLtoBlob(note.audioUrl);
+                                } else {
+                                    // Direct URL
+                                    console.warn('Direct URL detected for audio, skipping upload');
+                                    return recordId;
+                                }
+                                
+                                // Upload attachment to the created record
+                                await uploadAttachmentToRecord(recordId, blob, `audio_${Date.now()}.wav`, fieldIds.audio);
+                                console.log('Audio attachment uploaded successfully');
+                            } catch (attachmentError) {
+                                console.error('Failed to upload audio attachment:', attachmentError);
+                                // Don't fail the entire operation, just log the error
+                            }
+                        }
+
+                        return recordId;
+                    } catch (error) {
+                        console.error('Failed to create note in Airtable:', error);
+                        throw error;
+                    }
+                };
+
+                // Update single note in Airtable
+                const updateNoteInAirtable = async (note) => {
+                    if (!airtableTable) {
+                        throw new Error('Airtable not initialized');
+                    }
+                    
+                    try {
+                        // Step 1: Update the record fields first
+                        const recordData = {
+                            title: note.title,
+                            text: note.content,
+                            date: note.updatedAt.toISOString().slice(0, 10)
+                        };
+
+                        await airtableTable.update([{
+                            id: note.id,
+                            fields: recordData
+                        }]);
+                        
+                        // Step 2: Handle attachments if they exist
+                        const fieldIds = getFieldIds();
+                        
+                        // Handle image attachment
+                        if (note.type === 'image' && note.imageUrl) {
+                            try {
+                                let blob;
+                                if (note.imageUrl.startsWith('data:')) {
+                                    // Convert data URL to blob
+                                    blob = dataURLtoBlob(note.imageUrl);
+                                } else if (note.imageUrl.startsWith('blob:')) {
+                                    // Convert blob URL to actual blob
+                                    const response = await fetch(note.imageUrl);
+                                    blob = await response.blob();
+                                } else {
+                                    // Direct URL (already uploaded)
+                                    console.log('Image already uploaded, skipping');
+                                    return;
+                                }
+                                
+                                // Upload attachment to the existing record
+                                await uploadAttachmentToRecord(note.id, blob, `image_${Date.now()}.png`, fieldIds.image);
+                                console.log('Image attachment updated successfully');
+                            } catch (attachmentError) {
+                                console.error('Failed to update image attachment:', attachmentError);
+                                // Don't fail the entire operation, just log the error
+                            }
+                        }
+
+                        // Handle audio attachment
+                        if (note.type === 'voice' && note.audioUrl) {
+                            try {
+                                let blob;
+                                if (note.audioUrl.startsWith('blob:')) {
+                                    // Convert blob URL to actual blob
+                                    const response = await fetch(note.audioUrl);
+                                    blob = await response.blob();
+                                } else if (note.audioUrl.startsWith('data:')) {
+                                    // Convert data URL to blob
+                                    blob = dataURLtoBlob(note.audioUrl);
+                                } else {
+                                    // Direct URL (already uploaded)
+                                    console.log('Audio already uploaded, skipping');
+                                    return;
+                                }
+                                
+                                // Upload attachment to the existing record
+                                await uploadAttachmentToRecord(note.id, blob, `audio_${Date.now()}.wav`, fieldIds.audio);
+                                console.log('Audio attachment updated successfully');
+                            } catch (attachmentError) {
+                                console.error('Failed to update audio attachment:', attachmentError);
+                                // Don't fail the entire operation, just log the error
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Failed to update note in Airtable:', error);
+                        throw error;
+                    }
+                };
+
+                // Settings functions
+                const openSettings = () => {
+                    showSettings.value = true;
+                };
+
+                const closeSettings = () => {
+                    showSettings.value = false;
+                    connectionStatus.value = null;
+                };
+
+                const saveSettings = () => {
+                    localStorage.setItem('airtableConfig', JSON.stringify(airtableConfig.value));
+                    // Reinitialize Airtable with new settings
+                    initializeAirtable();
+                    closeSettings();
+                };
+
+                // Test connection function
+                const testConnection = async () => {
+                    try {
+                        connectionStatus.value = { success: false, message: 'Testing connection...' };
+                        
+                        // First, check if Airtable library is loaded
+                        if (typeof Airtable === 'undefined') {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Airtable library not loaded. Please refresh the page and try again.' 
+                            };
+                            return;
+                        }
+                        
+                        // Check if required fields are filled
+                        if (!airtableConfig.value.apiKey || !airtableConfig.value.baseId) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Please enter both API Key and Base ID' 
+                            };
+                            return;
+                        }
+                        
+                        // Test API key format (should start with 'pat')
+                        if (!airtableConfig.value.apiKey.startsWith('pat')) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'API Key format appears incorrect. Personal access tokens should start with "pat"' 
+                            };
+                            return;
+                        }
+                        
+                        // Test Base ID format (should be 17 characters)
+                        if (airtableConfig.value.baseId.length !== 17) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Base ID format appears incorrect. Should be 17 characters long.' 
+                            };
+                            return;
+                        }
+                        
+                        if (initializeAirtable()) {
+                            // Test by trying to fetch the first page
+                            const records = await new Promise((resolve, reject) => {
+                                airtableTable.select({ maxRecords: 1 }).firstPage()
+                                    .then(resolve)
+                                    .catch(reject);
+                            });
+                            
+                            // Validate table structure
+                            const structureValid = await validateTableStructure();
+                            
+                            if (structureValid) {
+                                // Check field ID configuration
+                                const fieldIds = getFieldIds();
+                                const imageFieldConfigured = fieldIds.image && fieldIds.image !== 'fldImageFieldId';
+                                const audioFieldConfigured = fieldIds.audio && fieldIds.audio !== 'fldAudioFieldId';
+                                
+                                let message = `Connection successful! Found ${records.length} records in table "${airtableConfig.value.tableName}". Table structure is valid.`;
+                                
+                                if (imageFieldConfigured && audioFieldConfigured) {
+                                    message += ' Image and audio attachments are configured.';
+                                } else if (imageFieldConfigured) {
+                                    message += ' Image attachments are configured. Audio field ID needs configuration.';
+                                } else if (audioFieldConfigured) {
+                                    message += ' Audio attachments are configured. Image field ID needs configuration.';
+                                } else {
+                                    message += ' Please configure field IDs for image and audio attachments.';
+                                }
+                                
+                                connectionStatus.value = { 
+                                    success: true, 
+                                    message: message
+                                };
+                            } else {
+                                connectionStatus.value = { 
+                                    success: false, 
+                                    message: `Connection successful, but table structure is invalid. Please check the field types in your Airtable table.` 
+                                };
+                            }
+                        } else {
+                            connectionStatus.value = { success: false, message: 'Failed to initialize Airtable' };
+                        }
+                    } catch (error) {
+                        console.error('Connection test error:', error);
+                        
+                        // Provide more specific error messages
+                        let errorMessage = 'Connection error: ';
+                        
+                        if (error.message) {
+                            if (error.message.includes('401')) {
+                                errorMessage += 'Invalid API key. Please check your API key.';
+                            } else if (error.message.includes('403')) {
+                                errorMessage += 'Access denied. Please check your API key permissions.';
+                            } else if (error.message.includes('404')) {
+                                errorMessage += 'Base or table not found. Please check your Base ID and table name.';
+                            } else if (error.message.includes('422')) {
+                                errorMessage += 'Invalid request. Please check your table structure.';
+                            } else if (error.message.includes('429')) {
+                                errorMessage += 'Rate limit exceeded. Please wait a moment and try again.';
+                            } else if (error.message.includes('NetworkError')) {
+                                errorMessage += 'Network error. Please check your internet connection.';
+                            } else {
+                                errorMessage += error.message;
+                            }
+                        } else {
+                            errorMessage += 'Unknown error occurred.';
+                        }
+                        
+                        connectionStatus.value = { success: false, message: errorMessage };
+                    }
+                };
+
+                // Debug connection function
+                const debugConnection = async () => {
+                    try {
+                        let debugInfo = '=== AIRTABLE CONNECTION DEBUG ===\n\n';
+                        
+                        // Check Airtable library
+                        debugInfo += `1. Airtable Library: ${typeof Airtable !== 'undefined' ? '✅ Loaded' : '❌ Not loaded'}\n`;
+                        
+                        // Check configuration
+                        debugInfo += `2. API Key: ${airtableConfig.value.apiKey ? '✅ Set' : '❌ Missing'}\n`;
+                        debugInfo += `   - Format: ${airtableConfig.value.apiKey?.startsWith('pat') ? '✅ Correct (starts with pat)' : '❌ Incorrect format'}\n`;
+                        debugInfo += `   - Length: ${airtableConfig.value.apiKey?.length || 0} characters\n`;
+                        
+                        debugInfo += `3. Base ID: ${airtableConfig.value.baseId ? '✅ Set' : '❌ Missing'}\n`;
+                        debugInfo += `   - Format: ${airtableConfig.value.baseId?.length === 17 ? '✅ Correct (17 chars)' : '❌ Incorrect length'}\n`;
+                        debugInfo += `   - Value: ${airtableConfig.value.baseId || 'N/A'}\n`;
+                        
+                        debugInfo += `4. Table Name: ${airtableConfig.value.tableName || 'Notes'}\n`;
+                        debugInfo += `5. Enabled: ${airtableConfig.value.enabled ? '✅ Yes' : '❌ No'}\n\n`;
+                        
+                        // Test initialization
+                        debugInfo += '=== INITIALIZATION TEST ===\n';
+                        const initResult = initializeAirtable();
+                        debugInfo += `Initialization: ${initResult ? '✅ Success' : '❌ Failed'}\n`;
+                        
+                        if (initResult && airtableTable) {
+                            debugInfo += '✅ Airtable table object created\n';
+                            
+                            // Test basic connection
+                            debugInfo += '\n=== CONNECTION TEST ===\n';
+                            try {
+                                const records = await new Promise((resolve, reject) => {
+                                    airtableTable.select({ maxRecords: 1 }).firstPage()
+                                        .then(resolve)
+                                        .catch(reject);
+                                });
+                                debugInfo += `✅ Connection successful! Found ${records.length} records\n`;
+                                
+                                // Test table structure
+                                debugInfo += '\n=== TABLE STRUCTURE TEST ===\n';
+                                try {
+                                    const structureValid = await validateTableStructure();
+                                    debugInfo += `Table structure: ${structureValid ? '✅ Valid' : '❌ Invalid'}\n`;
+                                } catch (structureError) {
+                                    debugInfo += `❌ Table structure error: ${structureError.message}\n`;
+                                }
+                                
+                            } catch (connectionError) {
+                                debugInfo += `❌ Connection failed: ${connectionError.message}\n`;
+                                debugInfo += `   Error type: ${connectionError.constructor.name}\n`;
+                                
+                                // Check for CORS issues
+                                if (connectionError.message && connectionError.message.includes('CORS')) {
+                                    debugInfo += `   ⚠️  CORS Error: This might be due to running locally. Try:\n`;
+                                    debugInfo += `      - Using a local server (not file:// protocol)\n`;
+                                    debugInfo += `      - Using a CORS proxy or browser extension\n`;
+                                }
+                                
+                                if (connectionError.response) {
+                                    debugInfo += `   Response status: ${connectionError.response.status}\n`;
+                                }
+                            }
+                        } else {
+                            debugInfo += '❌ Failed to create Airtable table object\n';
+                        }
+                        
+                        // Test attachment upload functionality
+                        debugInfo += '\n=== ATTACHMENT UPLOAD TEST ===\n';
+                        try {
+                            // Create a small test image blob
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 10;
+                            canvas.height = 10;
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = 'red';
+                            ctx.fillRect(0, 0, 10, 10);
+                            
+                            const dataURL = canvas.toDataURL('image/png');
+                            console.log('Preview DataURL length:', dataURL.length);
+                            
+                            const convertedBlob = dataURLtoBlob(dataURL);
+                            
+                            // Create a test record first
+                            const testRecord = await airtableTable.create([{ 
+                                fields: { 
+                                    title: 'Test Record', 
+                                    text: 'Test content',
+                                    date: new Date().toISOString().slice(0, 10)
+                                } 
+                            }]);
+                            const testRecordId = testRecord[0].id;
+                            
+                            // Upload attachment to the test record
+                            const uploaded = await uploadAttachmentToRecord(testRecordId, convertedBlob, 'test_attachment.png', getFieldIds().image);
+                            console.log('✅ Attachment upload test successful:', uploaded);
+                            
+                            // Clean up test record
+                            await airtableTable.destroy(testRecordId);
+                            
+                        } catch (attachmentError) {
+                            console.error('❌ Attachment upload test failed:', attachmentError);
+                            if (attachmentError.response) {
+                                console.error('Response status:', attachmentError.response.status);
+                            }
+                        }
+                        
+                        // Show debug info in console and alert
+                        console.log(debugInfo);
+                        alert(debugInfo);
+                        
+                    } catch (error) {
+                        console.error('Debug error:', error);
+                        alert(`Debug error: ${error.message}`);
+                    }
+                };
+
+                // Validate table structure
+                const validateTableStructure = async () => {
+                    try {
+                        // First, try to get table metadata to check if table exists
+                        const tableInfo = await new Promise((resolve, reject) => {
+                            airtableTable.select({ maxRecords: 0 }).firstPage()
+                                .then(() => resolve(true))
+                                .catch(reject);
+                        });
+                        
+                        // Try to create a test record with all field types to validate structure
+                        const testRecord = {
+                            title: 'Test Record',
+                            text: 'Test content',
+                            image: [],
+                            audio: [],
+                            date: new Date().toISOString().slice(0, 10)
+                        };
+                        
+                        const record = await airtableTable.create([{ fields: testRecord }]);
+                        
+                        // If successful, delete the test record
+                        if (record && record[0]) {
+                            await airtableTable.destroy(record[0].id);
+                        }
+                        
+                        // Check if field IDs are configured for attachments
+                        const fieldIds = getFieldIds();
+                        if (!fieldIds.image || fieldIds.image === 'fldImageFieldId') {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Image field ID not configured. Please set the Image Field ID in settings.' 
+                            };
+                            return false;
+                        }
+                        
+                        if (!fieldIds.audio || fieldIds.audio === 'fldAudioFieldId') {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Audio field ID not configured. Please set the Audio Field ID in settings.' 
+                            };
+                            return false;
+                        }
+                        
+                        return true;
+                    } catch (error) {
+                        console.error('Table structure validation failed:', error);
+                        
+                        // Provide specific guidance based on error
+                        if (error.message && error.message.includes('INVALID_FIELD_NAME')) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Table structure error: Missing required fields. Your table needs: title, text, image, audio, date' 
+                            };
+                        } else if (error.message && error.message.includes('INVALID_FIELD_TYPE')) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: 'Table structure error: Field types incorrect. Make sure "image" and "audio" are Attachment fields, "date" is a Date field.' 
+                            };
+                        } else if (error.message && error.message.includes('TABLE_NOT_FOUND')) {
+                            connectionStatus.value = { 
+                                success: false, 
+                                message: `Table "${airtableConfig.value.tableName}" not found. Please check the table name or create a table with this name.` 
+                            };
+                        }
+                        
+                        return false;
+                    }
+                };
+
+                // Load settings
+                const loadSettings = () => {
+                    const saved = localStorage.getItem('airtableConfig');
+                    if (saved) {
+                        airtableConfig.value = { ...airtableConfig.value, ...JSON.parse(saved) };
+                    }
                 };
 
                 // Set note type
@@ -538,6 +1310,15 @@
 
                         mediaRecorder.value.onstop = () => {
                             const blob = new Blob(chunks, { type: 'audio/wav' });
+                            
+                            // Check audio file size
+                            const maxSize = 25 * 1024 * 1024; // 25MB limit for audio
+                            if (blob.size > maxSize) {
+                                alert(`Recording is too large. Please keep recordings under 25MB. Current size: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
+                                stream.getTracks().forEach(track => track.stop());
+                                return;
+                            }
+                            
                             newNote.value.audioBlob = blob;
                             newNote.value.audioUrl = URL.createObjectURL(blob);
                             stream.getTracks().forEach(track => track.stop());
@@ -580,6 +1361,13 @@
                 const handleImageUpload = (event) => {
                     const file = event.target.files[0];
                     if (file) {
+                        // Check file size (Airtable has limits)
+                        const maxSize = 10 * 1024 * 1024; // 10MB limit
+                        if (file.size > maxSize) {
+                            alert(`Image file is too large. Please choose an image smaller than 10MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                            return;
+                        }
+                        
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             newNote.value.imageUrl = e.target.result;
@@ -606,8 +1394,19 @@
                     canvas.value.height = video.value.videoHeight;
                     context.drawImage(video.value, 0, 0);
                     
-                    newNote.value.imageUrl = canvas.value.toDataURL('image/png');
-                    closeCamera();
+                    // Convert to blob to check size
+                    canvas.value.toBlob((blob) => {
+                        if (blob) {
+                            const maxSize = 10 * 1024 * 1024; // 10MB limit
+                            if (blob.size > maxSize) {
+                                alert(`Captured image is too large. Please try again with a lower resolution. Current size: ${(blob.size / 1024 / 1024).toFixed(2)}MB`);
+                                return;
+                            }
+                            
+                            newNote.value.imageUrl = canvas.value.toDataURL('image/png');
+                            closeCamera();
+                        }
+                    }, 'image/png');
                 };
 
                 const closeCamera = () => {
@@ -625,7 +1424,7 @@
                     }
                 };
 
-                // Handle paste events for images
+                // Handle paste events for images with size validation
                 const handlePaste = (event) => {
                     const items = event.clipboardData?.items;
                     if (!items) return;
@@ -635,6 +1434,13 @@
                         if (item.type.indexOf('image') !== -1) {
                             const file = item.getAsFile();
                             if (file) {
+                                // Check file size
+                                const maxSize = 10 * 1024 * 1024; // 10MB limit
+                                if (file.size > maxSize) {
+                                    alert(`Pasted image is too large. Please choose an image smaller than 10MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                                    return;
+                                }
+                                
                                 const reader = new FileReader();
                                 reader.onload = (e) => {
                                     newNote.value.imageUrl = e.target.result;
@@ -646,13 +1452,20 @@
                     }
                 };
 
-                // Handle drag and drop for images
+                // Handle drag and drop for images with size validation
                 const handleDrop = (event) => {
                     const files = event.dataTransfer?.files;
                     if (!files || files.length === 0) return;
 
                     const file = files[0];
                     if (file.type.indexOf('image') !== -1) {
+                        // Check file size
+                        const maxSize = 10 * 1024 * 1024; // 10MB limit
+                        if (file.size > maxSize) {
+                            alert(`Dropped image is too large. Please choose an image smaller than 10MB. Current size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                            return;
+                        }
+                        
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             newNote.value.imageUrl = e.target.result;
@@ -687,15 +1500,14 @@
                 });
 
                 // Add new note
-                const addNote = () => {
+                const addNote = async () => {
                     if (!canAddNote.value) return;
 
                     const note = {
-                        id: Date.now(),
+                        id: null, // Will be set by Airtable
                         type: newNote.value.type,
                         title: newNote.value.title.trim(),
                         content: newNote.value.content.trim(),
-                        color: newNote.value.color,
                         createdAt: new Date(),
                         updatedAt: new Date()
                     };
@@ -708,15 +1520,42 @@
                         note.imageUrl = newNote.value.imageUrl;
                     }
 
-                    notes.value.unshift(note);
-                    saveNotes();
+                    try {
+                        if (airtableConfig.value.enabled && airtableConfig.value.apiKey && airtableConfig.value.baseId) {
+                            // Show loading state for attachments
+                            if (note.type === 'image' || note.type === 'voice') {
+                                console.log(`Uploading ${note.type} attachment...`);
+                            }
+                            
+                            // Create in Airtable and get the real ID
+                            const airtableId = await createNoteInAirtable(note);
+                            note.id = airtableId;
+                            notes.value.unshift(note);
+                        } else {
+                            // Fallback to temporary ID if Airtable not configured
+                            note.id = Date.now();
+                            notes.value.unshift(note);
+                            console.warn('Airtable not configured, note saved locally only');
+                        }
+                    } catch (error) {
+                        console.error('Failed to add note:', error);
+                        
+                        // Provide more specific error messages for attachment issues
+                        if (error.message && error.message.includes('attachment')) {
+                            alert('Failed to upload attachment. Please check your file size and try again.');
+                        } else if (error.message && error.message.includes('413')) {
+                            alert('File too large. Please choose a smaller file.');
+                        } else {
+                            alert('Failed to add note. Please check your connection and try again.');
+                        }
+                        return;
+                    }
 
                     // Reset form
                     newNote.value = {
                         type: 'text',
                         title: '',
                         content: '',
-                        color: 'white',
                         audioBlob: null,
                         audioUrl: null,
                         imageUrl: null
@@ -724,10 +1563,19 @@
                 };
 
                 // Delete note
-                const deleteNote = (id) => {
+                const deleteNote = async (id) => {
                     if (confirm('Are you sure you want to delete this note?')) {
-                        notes.value = notes.value.filter(note => note.id !== id);
-                        saveNotes();
+                        try {
+                            if (airtableConfig.value.enabled && airtableConfig.value.apiKey && airtableConfig.value.baseId) {
+                                // Delete from Airtable
+                                await deleteNoteFromAirtable(id);
+                            }
+                            // Remove from local state
+                            notes.value = notes.value.filter(note => note.id !== id);
+                        } catch (error) {
+                            console.error('Failed to delete note:', error);
+                            alert('Failed to delete note. Please check your connection and try again.');
+                        }
                     }
                 };
 
@@ -736,15 +1584,40 @@
                     editingNote.value = { ...note };
                 };
 
-                // Save edit
-                const saveEdit = () => {
+                // Save edit with better error handling
+                const saveEdit = async () => {
                     const index = notes.value.findIndex(note => note.id === editingNote.value.id);
                     if (index !== -1) {
-                        notes.value[index] = {
+                        const updatedNote = {
                             ...editingNote.value,
                             updatedAt: new Date()
                         };
-                        saveNotes();
+
+                        try {
+                            if (airtableConfig.value.enabled && airtableConfig.value.apiKey && airtableConfig.value.baseId) {
+                                // Show loading state for attachments
+                                if (updatedNote.type === 'image' || updatedNote.type === 'voice') {
+                                    console.log(`Updating ${updatedNote.type} attachment...`);
+                                }
+                                
+                                // Update in Airtable
+                                await updateNoteInAirtable(updatedNote);
+                            }
+                            // Update local state
+                            notes.value[index] = updatedNote;
+                        } catch (error) {
+                            console.error('Failed to update note:', error);
+                            
+                            // Provide more specific error messages for attachment issues
+                            if (error.message && error.message.includes('attachment')) {
+                                alert('Failed to update attachment. Please check your file size and try again.');
+                            } else if (error.message && error.message.includes('413')) {
+                                alert('File too large. Please choose a smaller file.');
+                            } else {
+                                alert('Failed to update note. Please check your connection and try again.');
+                            }
+                            return;
+                        }
                     }
                     editingNote.value = null;
                 };
@@ -752,19 +1625,6 @@
                 // Cancel edit
                 const cancelEdit = () => {
                     editingNote.value = null;
-                };
-
-                // Get note color class
-                const getNoteColorClass = (color) => {
-                    const colorClasses = {
-                        white: 'bg-white',
-                        yellow: 'bg-yellow-100',
-                        green: 'bg-green-100',
-                        blue: 'bg-blue-100',
-                        pink: 'bg-pink-100',
-                        purple: 'bg-purple-100'
-                    };
-                    return colorClasses[color] || 'bg-white';
                 };
 
                 // Get note type icon
@@ -807,9 +1667,129 @@
                     );
                 });
 
-                // Load notes on mount
+                // Load notes and settings on mount
                 onMounted(() => {
+                    loadSettings();
                     loadNotes();
+                    
+                    // Make debug function available globally for console testing
+                    window.testAirtableConnection = async () => {
+                        console.log('=== CONSOLE AIRTABLE TEST ===');
+                        
+                        // Get the current config
+                        const config = airtableConfig.value;
+                        console.log('Current config:', config);
+                        
+                        // Check if Airtable library is loaded
+                        console.log('Airtable library loaded:', typeof Airtable !== 'undefined');
+                        
+                        if (typeof Airtable === 'undefined') {
+                            console.error('❌ Airtable library not loaded');
+                            return;
+                        }
+                        
+                        // Test configuration
+                        if (!config.apiKey || !config.baseId) {
+                            console.error('❌ Missing API Key or Base ID');
+                            return;
+                        }
+                        
+                        console.log('✅ API Key format:', config.apiKey.startsWith('pat') ? 'Correct' : 'Incorrect');
+                        console.log('✅ Base ID format:', config.baseId.length === 17 ? 'Correct' : 'Incorrect');
+                        
+                        try {
+                            // Configure Airtable
+                            Airtable.configure({
+                                apiKey: config.apiKey,
+                                endpointUrl: 'https://api.airtable.com',
+                                requestTimeout: 300000
+                            });
+                            console.log('✅ Airtable configured');
+                            
+                            // Initialize base and table
+                            const base = Airtable.base(config.baseId);
+                            const table = base(config.tableName || 'Notes');
+                            console.log('✅ Base and table initialized');
+                            
+                            // Test connection
+                            console.log('🔄 Testing connection...');
+                            const records = await table.select({ maxRecords: 1 }).firstPage();
+                            console.log('✅ Connection successful!');
+                            console.log('Records found:', records.length);
+                            
+                            if (records.length > 0) {
+                                console.log('Sample record:', records[0].fields);
+                            }
+                            
+                            // Test table structure
+                            console.log('🔄 Testing table structure...');
+                            try {
+                                const structureValid = await validateTableStructure();
+                                console.log('Table structure:', structureValid ? '✅ Valid' : '❌ Invalid');
+                            } catch (structureError) {
+                                console.error('❌ Table structure error:', structureError.message);
+                            }
+                            
+                            // Test attachment upload functionality
+                            console.log('🔄 Testing attachment upload...');
+                            try {
+                                // Create a small test image blob
+                                const canvas = document.createElement('canvas');
+                                canvas.width = 10;
+                                canvas.height = 10;
+                                const ctx = canvas.getContext('2d');
+                                ctx.fillStyle = 'red';
+                                ctx.fillRect(0, 0, 10, 10);
+                                
+                                const dataURL = canvas.toDataURL('image/png');
+                                console.log('Preview DataURL length:', dataURL.length);
+                                
+                                const convertedBlob = dataURLtoBlob(dataURL);
+                                
+                                // Create a test record first
+                                const testRecord = await table.create([{ 
+                                    fields: { 
+                                        title: 'Test Record', 
+                                        text: 'Test content',
+                                        date: new Date().toISOString().slice(0, 10)
+                                    } 
+                                }]);
+                                const testRecordId = testRecord[0].id;
+                                
+                                // Upload attachment to the test record
+                                const uploaded = await uploadAttachmentToRecord(testRecordId, convertedBlob, 'test_attachment.png', getFieldIds().image);
+                                console.log('✅ Attachment upload test successful:', uploaded);
+                                
+                                // Clean up test record
+                                await table.destroy(testRecordId);
+                                
+                            } catch (attachmentError) {
+                                console.error('❌ Attachment upload test failed:', attachmentError);
+                                if (attachmentError.response) {
+                                    console.error('Response status:', attachmentError.response.status);
+                                }
+                            }
+                            
+                            console.log('🎉 All tests passed!');
+                            
+                        } catch (error) {
+                            console.error('❌ Test failed:', error);
+                            console.error('Error details:', {
+                                message: error.message,
+                                name: error.name,
+                                stack: error.stack
+                            });
+                            
+                            if (error.response) {
+                                console.error('Response status:', error.response.status);
+                                console.error('Response data:', error.response.data);
+                            }
+                        }
+                    };
+                    
+                    // Make config available for manual testing
+                    window.airtableConfig = airtableConfig;
+                    window.initializeAirtable = initializeAirtable;
                 });
 
                 return {
@@ -823,10 +1803,12 @@
                     showCamera,
                     showImageModal,
                     modalImageUrl,
+                    showSettings,
+                    airtableConfig,
+                    connectionStatus,
                     imageInput,
                     video,
                     canvas,
-                    availableColors,
                     canAddNote,
                     setNoteType,
                     addNote,
@@ -846,7 +1828,11 @@
                     handleDrop,
                     openImageModal,
                     closeImageModal,
-                    getNoteColorClass,
+                    openSettings,
+                    closeSettings,
+                    saveSettings,
+                    testConnection,
+                    debugConnection,
                     getNoteTypeIcon,
                     formatDate
                 };
