@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mobile permissions for camera and microphone -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-title" content="My Notes">
+    <meta name="application-name" content="My Notes">
+    <meta name="description" content="A note-taking app with image and voice support.">
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=()">
+    <meta name="permissions-policy" content="camera=*, microphone=*">
     <title>My Notes</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
