@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor++</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue.js CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div id="app" class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
+    <div class="flex items-center justify-center mb-6">
+      <h1 class="text-3xl font-bold text-center mr-2">Editor++</h1>
+      <button @click="showSettings = !showSettings" class="focus:outline-none" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-500 hover:text-gray-700 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.25 2.25c.414 0 .75.336.75.75v1.086a7.5 7.5 0 013.03 1.26l.77-.77a.75.75 0 111.06 1.06l-.77.77a7.5 7.5 0 011.26 3.03h1.086a.75.75 0 110 1.5h-1.086a7.5 7.5 0 01-1.26 3.03l.77.77a.75.75 0 11-1.06 1.06l-.77-.77a7.5 7.5 0 01-3.03 1.26v1.086a.75.75 0 11-1.5 0v-1.086a7.5 7.5 0 01-3.03-1.26l-.77.77a.75.75 0 11-1.06-1.06l.77-.77a7.5 7.5 0 01-1.26-3.03H2.25a.75.75 0 110-1.5h1.086a7.5 7.5 0 011.26-3.03l-.77-.77a.75.75 0 111.06-1.06l.77.77a7.5 7.5 0 013.03-1.26V3c0-.414.336-.75.75-.75zm.75 6a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+    </div>
+    <div v-if="showSettings" class="mb-6 flex flex-col items-center">
+      <form @submit.prevent="saveApiKey" class="w-full max-w-sm bg-gray-50 p-4 rounded shadow">
+        <label class="block mb-2 font-semibold">OpenAI API Key</label>
+        <input v-model="apiKeyInput" type="password" class="w-full border rounded p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="sk-..." />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Save</button>
+        <button type="button" @click="cancelApiKey" class="ml-2 text-gray-600 hover:underline">Cancel</button>
+      </form>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="flex flex-col space-y-4">
+        <label class="font-semibold">Original Text</label>
+        <textarea v-model="original" class="border rounded p-3 h-48 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter original text..." @keydown="handleShiftEnter"></textarea>
+        <label class="font-semibold">Commands</label>
+        <textarea v-model="command" class="border rounded p-3 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter commands (e.g., 'Make it more formal')..." @keydown="handleShiftEnter"></textarea>
+        <button @click="processText" :disabled="loading" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center">
+          <span v-if="loading" class="animate-spin mr-2 border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+          Process
+        </button>
+      </div>
+      <div class="flex flex-col space-y-4">
+        <label class="font-semibold">Result</label>
+        <textarea v-model="result" readonly class="border rounded p-3 h-full min-h-[20rem] resize-none bg-gray-50 focus:outline-none"></textarea>
+      </div>
+    </div>
+    <div v-if="error" class="mt-4 text-red-600 text-center">{{ error }}</div>
+  </div>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          original: '',
+          command: '',
+          result: '',
+          loading: false,
+          error: '',
+          showSettings: false,
+          apiKey: '',
+          apiKeyInput: ''
+        };
+      },
+      methods: {
+        saveApiKey() {
+          this.apiKey = this.apiKeyInput;
+          this.showSettings = false;
+          localStorage.setItem('openai_api_key', this.apiKey);
+        },
+        cancelApiKey() {
+          this.apiKeyInput = this.apiKey;
+          this.showSettings = false;
+        },
+        handleShiftEnter(e) {
+          if (e.shiftKey && e.key === 'Enter') {
+            e.preventDefault();
+            this.processText();
+          }
+        },
+        async processText() {
+          this.error = '';
+          this.result = '';
+          if (!this.original || !this.command) {
+            this.error = 'Please provide both original text and a command.';
+            return;
+          }
+          if (!this.apiKey) {
+            this.error = 'Please set your OpenAI API key (gear icon).';
+            return;
+          }
+          this.loading = true;
+          try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [
+                  {
+                    role: 'system',
+                    content: `Please see original text: {original} and do the changes specified in command: {command}.`.replace('{original}', this.original).replace('{command}', this.command)
+                  }
+                ],
+                max_tokens: 2048
+              })
+            });
+            const data = await response.json();
+            if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+              this.result = data.choices[0].message.content.trim();
+            } else {
+              this.error = data.error?.message || 'Unexpected response from OpenAI API.';
+            }
+          } catch (err) {
+            this.error = err.message || 'Failed to process text.';
+          } finally {
+            this.loading = false;
+          }
+        }
+      },
+      mounted() {
+        const savedKey = localStorage.getItem('openai_api_key');
+        if (savedKey) {
+          this.apiKey = savedKey;
+          this.apiKeyInput = savedKey;
+        } else {
+          this.apiKeyInput = this.apiKey;
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html> 
