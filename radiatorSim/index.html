@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Diffusion Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the resize handle */
+        .resize-handle {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 10px;
+            height: 10px;
+            background-color: #3b82f6;
+            border: 1px solid white;
+            border-radius: 2px;
+            cursor: nwse-resize;
+            z-index: 30;
+        }
+        .element-selected {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.7);
+        }
+        #simulation-canvas {
+            background-color: #f0f0f0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="app" class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
+        
+        <!-- Main Content: Editor or Simulator -->
+        <main class="flex-grow h-full bg-gray-200 relative">
+            <div v-if="!simulation.running" id="editor-area" class="w-full h-full relative overflow-hidden bg-white shadow-inner" @mousedown="handleCanvasMouseDown" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @mouseleave="handleMouseUp">
+                <!-- Grid Background -->
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="absolute top-0 left-0">
+                    <defs>
+                        <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(200,200,200,0.5)" stroke-width="0.5"/>
+                        </pattern>
+                        <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <rect width="50" height="50" fill="url(#smallGrid)"/>
+                            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(150,150,150,0.5)" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                </svg>
+
+                <!-- Draggable Elements -->
+                <div v-for="element in elements" :key="element.id"
+                    :style="{ top: element.y + 'px', left: element.x + 'px', width: element.width + 'px', height: element.height + 'px' }"
+                    class="absolute select-none flex items-center justify-center transition-shadow duration-200"
+                    :class="[getElementClasses(element.type), { 'element-selected': selectedElementId === element.id }]"
+                    @mousedown.stop="handleElementMouseDown($event, element.id)">
+                    
+                    <span class="text-sm font-medium text-white drop-shadow">{{ getElementLabel(element) }}</span>
+                    
+                    <div v-if="selectedElementId === element.id" class="resize-handle" @mousedown.stop="handleResizeMouseDown"></div>
+                </div>
+            </div>
+            <div v-else class="w-full h-full">
+                 <canvas id="simulation-canvas" ref="canvasRef"></canvas>
+            </div>
+        </main>
+
+        <!-- Control Panel -->
+        <aside class="w-full md:w-80 bg-white border-l border-gray-200 p-4 shadow-lg flex flex-col space-y-6">
+            <div class="flex-grow">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4">Heating Simulator</h1>
+                <p class="text-sm text-gray-600 mb-6">Design your room layout, then run a simulation to visualize heat diffusion.</p>
+                
+                <!-- Controls -->
+                <div class="space-y-3">
+                    <h2 class="text-lg font-semibold text-gray-700">Controls</h2>
+                    <button @click="addElement('wall')" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Add Wall</button>
+                    <button @click="addElement('window')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Add Window</button>
+                    <button @click="addElement('radiator')" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Add Radiator</button>
+                    <button @click="toggleSimulation" class="w-full mt-4 font-bold py-2 px-4 rounded-lg transition duration-150" :class="simulation.running ? 'bg-yellow-500 hover:bg-yellow-600 text-white' : 'bg-green-500 hover:bg-green-600 text-white'">
+                        {{ simulation.running ? 'Stop Simulation' : 'Start Simulation' }}
+                    </button>
+                     <button @click="clearAll" class="w-full mt-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-150">Clear All</button>
+                </div>
+                
+                <!-- Info Panel -->
+                <div v-if="selectedElement" class="mt-6 pt-6 border-t border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-700">Element Info</h2>
+                    <div class="mt-2 text-sm space-y-2 text-gray-600">
+                        <p><span class="font-semibold">Type:</span> <span class="capitalize">{{ selectedElement.type }}</span></p>
+                        <p><span class="font-semibold">Size:</span> {{ selectedElement.width }}px x {{ selectedElement.height }}px</p>
+                        
+                        <div v-if="selectedElement.type === 'radiator'">
+                             <p><span class="font-semibold">Heat Output:</span> ~{{ Math.round(selectedElement.width / 10 * selectedElement.power * 15) }} W</p>
+                             <label for="radiatorPower" class="font-semibold block mt-2">Power ({{ selectedElement.power }} elements):</label>
+                             <input type="range" id="radiatorPower" min="4" max="12" v-model.number="selectedElement.power" class="w-full mt-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <div v-if="selectedElement.type === 'window'">
+                             <p><span class="font-semibold">Heat Loss:</span> ~{{ Math.round(selectedElement.width / 10 * 5) }} W/°C</p>
+                        </div>
+
+                        <button @click="deleteSelected" class="w-full mt-4 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-2 px-4 rounded-lg transition duration-150">Delete Element</button>
+                    </div>
+                </div>
+                 <div v-else class="mt-6 pt-6 border-t border-gray-200 text-center text-gray-500">
+                    <p>Select an element to see its properties.</p>
+                </div>
+            </div>
+            <div class="text-xs text-center text-gray-400">
+                <p>Note: Heat values are simplified estimations for this simulation.</p>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                // STATE
+                const elements = ref([
+                    // Default elements for demonstration
+                    { id: 1, type: 'wall', x: 50, y: 50, width: 400, height: 20 },
+                    { id: 2, type: 'wall', x: 50, y: 350, width: 400, height: 20 },
+                    { id: 3, type: 'wall', x: 30, y: 50, width: 20, height: 320 },
+                    { id: 4, type: 'wall', x: 450, y: 50, width: 20, height: 320 },
+                    { id: 5, type: 'window', x: 150, y: 350, width: 150, height: 20 },
+                    { id: 6, type: 'radiator', x: 180, y: 60, width: 120, height: 30, power: 8 },
+                ]);
+                const nextElementId = ref(7);
+                const selectedElementId = ref(null);
+
+                const dragState = reactive({
+                    active: false,
+                    type: null, // 'move' or 'resize'
+                    startX: 0,
+                    startY: 0,
+                    elementStartX: 0,
+                    elementStartY: 0,
+                });
+
+                const simulation = reactive({
+                    running: false,
+                    grid: [],
+                    gridWidth: 80,
+                    gridHeight: 60,
+                    animationFrameId: null,
+                    baseTemp: 15, // C
+                    outsideTemp: -5, // C
+                    radiatorTemp: 60, // C
+                });
+                const canvasRef = ref(null);
+
+
+                // COMPUTED PROPERTIES
+                const selectedElement = computed(() => {
+                    if (!selectedElementId.value) return null;
+                    return elements.value.find(el => el.id === selectedElementId.value);
+                });
+
+                // METHODS: EDITOR
+                const addElement = (type) => {
+                    const newElement = {
+                        id: nextElementId.value++,
+                        type: type,
+                        x: 100,
+                        y: 100,
+                        width: type === 'wall' ? 200 : 120,
+                        height: type === 'wall' ? 20 : 30,
+                    };
+                    if (type === 'radiator') {
+                        newElement.power = 8; // Default 8 components
+                    }
+                    elements.value.push(newElement);
+                    selectedElementId.value = newElement.id;
+                };
+                
+                const deleteSelected = () => {
+                    if (!selectedElementId.value) return;
+                    elements.value = elements.value.filter(el => el.id !== selectedElementId.value);
+                    selectedElementId.value = null;
+                };
+                
+                const clearAll = () => {
+                    elements.value = [];
+                    selectedElementId.value = null;
+                }
+
+                const handleElementMouseDown = (event, id) => {
+                    selectedElementId.value = id;
+                    dragState.active = true;
+                    dragState.type = 'move';
+                    dragState.startX = event.clientX;
+                    dragState.startY = event.clientY;
+                    const el = selectedElement.value;
+                    dragState.elementStartX = el.x;
+                    dragState.elementStartY = el.y;
+                };
+
+                const handleResizeMouseDown = (event) => {
+                    dragState.active = true;
+                    dragState.type = 'resize';
+                    dragState.startX = event.clientX;
+                    dragState.startY = event.clientY;
+                    const el = selectedElement.value;
+                    dragState.elementStartX = el.width; // Store initial width/height
+                    dragState.elementStartY = el.height;
+                };
+
+                const handleCanvasMouseDown = (event) => {
+                    if (event.target.id === 'editor-area' || event.target.tagName === 'svg' || event.target.tagName === 'rect') {
+                        selectedElementId.value = null;
+                    }
+                };
+                
+                const handleMouseMove = (event) => {
+                    if (!dragState.active || !selectedElement.value) return;
+                    
+                    const dx = event.clientX - dragState.startX;
+                    const dy = event.clientY - dragState.startY;
+                    const el = selectedElement.value;
+
+                    if (dragState.type === 'move') {
+                        el.x = dragState.elementStartX + dx;
+                        el.y = dragState.elementStartY + dy;
+                    } else if (dragState.type === 'resize') {
+                        el.width = Math.max(20, dragState.elementStartX + dx);
+                        el.height = Math.max(20, dragState.elementStartY + dy);
+                    }
+                };
+
+                const handleMouseUp = () => {
+                    dragState.active = false;
+                    dragState.type = null;
+                };
+
+                const getElementClasses = (type) => {
+                    switch (type) {
+                        case 'wall': return 'bg-gray-700 border-2 border-gray-800 cursor-move rounded';
+                        case 'window': return 'bg-blue-400 border-2 border-blue-600 cursor-move rounded-lg';
+                        case 'radiator': return 'bg-red-500 border-2 border-red-700 cursor-move rounded';
+                        default: return '';
+                    }
+                };
+
+                const getElementLabel = (element) => {
+                    switch (element.type) {
+                        case 'wall': return 'Wall';
+                        case 'window': return 'Window';
+                        case 'radiator': return `Radiator (${element.power} el.)`;
+                        default: return '';
+                    }
+                };
+
+                // METHODS: SIMULATION
+                const toggleSimulation = () => {
+                    simulation.running = !simulation.running;
+                    if (simulation.running) {
+                        nextTick(() => {
+                           startSimulation();
+                        });
+                    } else {
+                        stopSimulation();
+                    }
+                };
+
+                const startSimulation = () => {
+                    const canvas = canvasRef.value;
+                    if (!canvas) return;
+
+                    const container = canvas.parentElement.parentElement;
+                     if (!container) {
+                        console.error("Simulation container not found!");
+                        return;
+                    }
+
+                    const rect = container.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+
+                    simulation.gridWidth = Math.floor(canvas.width / 10);
+                    simulation.gridHeight = Math.floor(canvas.height / 10);
+
+                    // Initialize grid
+                    simulation.grid = Array.from({ length: simulation.gridHeight }, () => 
+                        Array(simulation.gridWidth).fill(simulation.baseTemp)
+                    );
+
+                    // "Bake" elements into the grid
+                    elements.value.forEach(el => {
+                        const startX = Math.floor(el.x / 10);
+                        const startY = Math.floor(el.y / 10);
+                        const endX = Math.floor((el.x + el.width) / 10);
+                        const endY = Math.floor((el.y + el.height) / 10);
+
+                        for (let y = startY; y < endY; y++) {
+                            for (let x = startX; x < endX; x++) {
+                                if (x >= 0 && x < simulation.gridWidth && y >= 0 && y < simulation.gridHeight) {
+                                    if (el.type === 'wall') simulation.grid[y][x] = 'wall';
+                                    if (el.type === 'window') simulation.grid[y][x] = 'window';
+                                    if (el.type === 'radiator') simulation.grid[y][x] = `radiator-${el.power}`;
+                                }
+                            }
+                        }
+                    });
+
+                    simulation.animationFrameId = requestAnimationFrame(simulationLoop);
+                };
+
+                const stopSimulation = () => {
+                    if (simulation.animationFrameId) {
+                        cancelAnimationFrame(simulation.animationFrameId);
+                        simulation.animationFrameId = null;
+                    }
+                };
+
+                const simulationLoop = () => {
+                    if (!simulation.running) return;
+
+                    updateGrid();
+                    drawGrid();
+                    
+                    simulation.animationFrameId = requestAnimationFrame(simulationLoop);
+                };
+
+                const updateGrid = () => {
+                    const newGrid = simulation.grid.map(row => [...row]);
+                    const diffusionRate = 0.2;
+
+                    for (let y = 0; y < simulation.gridHeight; y++) {
+                        for (let x = 0; x < simulation.gridWidth; x++) {
+                            const cell = simulation.grid[y][x];
+
+                            // If the cell is a wall, radiator, or window, it is a fixed element.
+                            // Its own value doesn't change based on neighbors, so we skip it.
+                            // It will only INFLUENCE its neighbors.
+                            if (typeof cell !== 'number') {
+                                continue;
+                            }
+
+                            // This logic now only runs for air cells (where the value is a number).
+                            let neighborSum = 0;
+                            let neighborCount = 0;
+                            
+                            // Check all 8 neighbors
+                            for (let dy = -1; dy <= 1; dy++) {
+                                for (let dx = -1; dx <= 1; dx++) {
+                                    if (dx === 0 && dy === 0) continue;
+                                    
+                                    const nx = x + dx;
+                                    const ny = y + dy;
+
+                                    if (nx >= 0 && nx < simulation.gridWidth && ny >= 0 && ny < simulation.gridHeight) {
+                                        const neighbor = simulation.grid[ny][nx];
+                                        
+                                        // Add neighbor's temperature to the sum
+                                        if (typeof neighbor === 'number') {
+                                            neighborSum += neighbor;
+                                            neighborCount++;
+                                        } else if (typeof neighbor === 'string' && neighbor.startsWith('radiator')) {
+                                            const power = parseInt(neighbor.split('-')[1]);
+                                            neighborSum += simulation.radiatorTemp * (power / 12);
+                                            neighborCount++;
+                                        } else if (neighbor === 'window') {
+                                            neighborSum += simulation.outsideTemp;
+                                            neighborCount++;
+                                        }
+                                        // Walls are implicitly ignored as they are strings that don't match the conditions.
+                                    }
+                                }
+                            }
+
+                            if (neighborCount > 0) {
+                                const avgNeighborTemp = neighborSum / neighborCount;
+                                const currentTemp = cell; // Current temp of the air cell
+                                // Set the new temperature for the air cell in the new grid
+                                newGrid[y][x] = currentTemp * (1 - diffusionRate) + avgNeighborTemp * diffusionRate;
+                            }
+                        }
+                    }
+                    // The original grid is replaced by the new one with updated air temperatures.
+                    simulation.grid = newGrid;
+                };
+
+                const drawGrid = () => {
+                    const canvas = canvasRef.value;
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    const cellWidth = canvas.width / simulation.gridWidth;
+                    const cellHeight = canvas.height / simulation.gridHeight;
+                    
+                    const maxTemp = 40;
+                    const minTemp = simulation.outsideTemp;
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    for (let y = 0; y < simulation.gridHeight; y++) {
+                        for (let x = 0; x < simulation.gridWidth; x++) {
+                            const cell = simulation.grid[y][x];
+                            let color;
+                            if (cell === 'wall') {
+                                color = '#4a5568'; // gray-700
+                            } else {
+                                // For drawing, we need a temperature value. If the cell is a string (radiator/window),
+                                // we assign its representative temperature for coloring.
+                                const temp = typeof cell === 'string' 
+                                    ? (cell === 'window' ? minTemp : simulation.radiatorTemp) 
+                                    : cell;
+                                const tempRatio = Math.max(0, Math.min(1, (temp - minTemp) / (maxTemp - minTemp)));
+                                // HSL color: 240 (blue) -> 0 (red)
+                                const hue = (1 - tempRatio) * 240;
+                                color = `hsl(${hue}, 90%, 60%)`;
+                            }
+                            
+                            ctx.fillStyle = color;
+                            ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+                        }
+                    }
+                };
+
+                return {
+                    elements,
+                    selectedElementId,
+                    dragState,
+                    simulation,
+                    canvasRef,
+                    selectedElement,
+                    addElement,
+                    deleteSelected,
+                    clearAll,
+                    handleElementMouseDown,
+                    handleResizeMouseDown,
+                    handleCanvasMouseDown,
+                    handleMouseMove,
+                    handleMouseUp,
+                    getElementClasses,
+                    getElementLabel,
+                    toggleSimulation,
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
