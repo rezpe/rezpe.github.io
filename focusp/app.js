@@ -12,6 +12,7 @@ createApp({
             projects: {}, // Each project will have: { nextSteps: [], blockingPoints: [], achievements: [], updates: [] }
             quickUpdateTexts: {}, // Separate text area for each project
             selectedRawUpdatesProject: '', // Track which project's raw updates to show
+            selectedProjectForUpdate: '', // Track which project is selected for posting updates
             showProjectManagement: false, // Toggle for project management section
             
             // AI Configuration
@@ -42,6 +43,34 @@ createApp({
                 
                 // If both have the same completion status, maintain original order
                 return this.projectNames.indexOf(a) - this.projectNames.indexOf(b);
+            });
+        },
+        hasAnyUpdates() {
+            return this.projectNames.some(projectName => 
+                this.projects[projectName]?.updates && this.projects[projectName].updates.length > 0
+            );
+        },
+        allUpdatesChronological() {
+            // Collect all updates from all projects and sort chronologically
+            const allUpdates = [];
+            
+            this.projectNames.forEach(projectName => {
+                if (this.projects[projectName]?.updates) {
+                    this.projects[projectName].updates.forEach(update => {
+                        allUpdates.push({
+                            ...update,
+                            projectName: projectName,
+                            projectIsDone: this.projects[projectName]?.isDone || false
+                        });
+                    });
+                }
+            });
+            
+            // Sort by timestamp (newest first)
+            return allUpdates.sort((a, b) => {
+                const dateA = new Date(a.timestamp);
+                const dateB = new Date(b.timestamp);
+                return dateB - dateA;
             });
         }
     },
@@ -106,17 +135,44 @@ createApp({
         // Toggle project done status
         toggleProjectDone(projectName) {
             if (this.projects[projectName]) {
+                const wasCompleted = this.projects[projectName].isDone;
                 this.projects[projectName].isDone = !this.projects[projectName].isDone;
+                
+                // Add an update to track the status change
+                const statusUpdate = {
+                    content: this.projects[projectName].isDone ? 
+                        '✅ Project marked as completed' : 
+                        '🔄 Project marked as active again',
+                    timestamp: new Date().toLocaleString()
+                };
+                this.projects[projectName].updates.unshift(statusUpdate);
+                
                 this.autoSave();
                 const status = this.projects[projectName].isDone ? 'completed' : 'active';
                 this.showNotification(`${projectName} marked as ${status}`, 'success');
             }
         },
+
+        // Select project for updates
+        selectProjectForUpdate(projectName) {
+            this.selectedProjectForUpdate = projectName;
+            this.showNotification(`Selected ${projectName} for updates`, 'info');
+        },
         
+        // Handle keyboard shortcuts for update textarea
+        handleUpdateKeydown(event) {
+            // Check for Shift+Enter
+            if (event.shiftKey && event.key === 'Enter') {
+                event.preventDefault(); // Prevent default behavior (new line)
+                this.submitQuickUpdate();
+            }
+        },
+
         // Quick Update method
-        async submitQuickUpdate(projectName) {
+        async submitQuickUpdate() {
+            const projectName = this.selectedProjectForUpdate;
             if (!projectName || !this.projects[projectName]) {
-                this.showNotification('Invalid project', 'error');
+                this.showNotification('Please select a project first', 'error');
                 return;
             }
             
@@ -137,6 +193,8 @@ createApp({
                 } else {
                     this.showNotification('Configure AI settings (gear icon) to enable AI processing', 'info');
                 }
+            } else {
+                this.showNotification('Please enter an update message', 'error');
             }
         },
 
@@ -359,6 +417,7 @@ Respond ONLY with a JSON object in this exact format:
                 projects: this.projects,
                 quickUpdateTexts: this.quickUpdateTexts,
                 selectedRawUpdatesProject: this.selectedRawUpdatesProject,
+                selectedProjectForUpdate: this.selectedProjectForUpdate,
                 lastSaved: new Date().toISOString()
             };
             localStorage.setItem('multiProjectData', JSON.stringify(data));
@@ -375,6 +434,7 @@ Respond ONLY with a JSON object in this exact format:
                     this.projects = data.projects || {};
                     this.quickUpdateTexts = data.quickUpdateTexts || {};
                     this.selectedRawUpdatesProject = data.selectedRawUpdatesProject || '';
+                    this.selectedProjectForUpdate = data.selectedProjectForUpdate || '';
                     
                     // Ensure all projects have the isDone field (for backwards compatibility)
                     Object.keys(this.projects).forEach(projectName => {
@@ -393,6 +453,7 @@ Respond ONLY with a JSON object in this exact format:
                 this.loadLegacyData();
             }
         },
+
 
         loadLegacyData() {
             const legacyData = localStorage.getItem('taskStatusData');
@@ -462,7 +523,7 @@ Respond ONLY with a JSON object in this exact format:
         showNotification(message, type = 'info') {
             // Create a simple notification system
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 transition-all duration-300 transform translate-x-full`;
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white text-xs font-medium z-50 transition-all duration-300 transform translate-x-full`;
             
             // Set color based on type
             switch (type) {

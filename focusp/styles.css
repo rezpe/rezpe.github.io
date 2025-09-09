@@ -1,8 +1,46 @@
 /* Custom styles for the Task Status Manager */
 
+/* Light theme base styles */
+body {
+    background-color: #f8fafc;
+    color: #1f2937;
+    font-family: 'Didact Gothic', sans-serif;
+}
+
 /* Smooth transitions for all interactive elements */
 * {
     transition: all 0.2s ease-in-out;
+}
+
+/* Project card hover effects */
+.project-card:hover {
+    transform: translateY(-2px);
+    border-color: #6b7280;
+}
+
+/* Selected project card effects */
+.project-card.selected {
+    border-color: #3b82f6;
+    border-width: 2px;
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* Smooth scaling for cards */
+.hover\:scale-102:hover {
+    transform: scale(1.02);
+}
+
+/* Enhanced button styles */
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
 }
 
 /* Custom focus styles for better accessibility */
@@ -17,17 +55,17 @@
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: #e2e8f0;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+    background: #94a3b8;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: #64748b;
 }
 
 /* Animation for list items */
@@ -76,8 +114,8 @@
 
 /* Text selection colors */
 ::selection {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: #3b82f6;
+    color: #ffffff;
 }
 
 /* Loading state for async operations */
@@ -95,7 +133,7 @@
     width: 20px;
     height: 20px;
     margin: -10px 0 0 -10px;
-    border: 2px solid #f3f4f6;
+    border: 2px solid #e5e7eb;
     border-radius: 50%;
     border-top-color: #3b82f6;
     animation: spin 1s linear infinite;
@@ -129,13 +167,33 @@ input:focus, textarea:focus {
     }
 }
 
-/* Dark mode support (if needed later) */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --bg-primary: #1f2937;
-        --bg-secondary: #374151;
-        --text-primary: #f9fafb;
-        --text-secondary: #d1d5db;
+    body {
+        background-color: #111827;
+        color: #f9fafb;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #374151;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #6b7280;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+    
+    ::selection {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .loading::after {
+        border-color: #4b5563;
+        border-top-color: #3b82f6;
     }
 }
 
