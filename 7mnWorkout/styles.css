@@ -1,23 +1,31 @@
-/* Add custom styles here if needed */
+/* Dark green theme matching Stitch design */
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     overflow: hidden;
+    background-color: #1a3a2e;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
 .app-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
+    background-color: #1a3a2e;
 }
+
 .title-area {
     height: 10vh;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    color: #ffffff;
 }
+
 .content-area {
     height: 70vh;
     display: flex;
@@ -26,6 +34,7 @@ body, html {
     align-items: center;
     overflow-y: auto;
 }
+
 .progress-bar-area {
     height: 5vh;
     display: flex;
@@ -34,29 +43,35 @@ body, html {
     width: 100%;
     padding: 0 20px;
 }
+
 .progress-bar {
     width: 100%;
     height: 20px;
-    background-color: #f0f0f0;
+    background-color: #2d5a4f;
     border-radius: 10px;
     overflow: hidden;
 }
+
 .progress-fill {
     height: 100%;
-    background-color: #f97316;
+    background-color: #00ff41;
     transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
 }
+
 .button-area {
     height: 15vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
 .video-container {
     position: relative;
     width: 320px;
     height: 320px;
 }
+
 .circular-video {
     position: absolute;
     top: 10px;
@@ -64,10 +79,11 @@ body, html {
     width: 300px;
     height: 300px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 30px;
     border-width: 30px;
     overflow: hidden;
 }
+
 .progress-arc {
     position: absolute;
     top: 0;
@@ -76,6 +92,7 @@ body, html {
     height: 100%;
     pointer-events: none;
 }
+
 .trash-button {
     position: absolute;
     right: 20px;
@@ -85,7 +102,47 @@ body, html {
     border: none;
     font-size: 24px;
     cursor: pointer;
+    color: #ffffff;
 }
+
 .content-image{
     height: 100%;
+    border-radius: 30px;
+}
+
+/* Button styles matching neon green accent */
+button {
+    background-color: #00ff41;
+    color: #1a3a2e;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.3);
+}
+
+button:hover {
+    background-color: #00e63d;
+    box-shadow: 0 6px 20px rgba(0, 255, 65, 0.5);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Text color overrides */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff;
+}
+
+p, span {
+    color: #b0b8b6;
+}
+
+.subtitle {
+    color: #7a8e8a;
 }
