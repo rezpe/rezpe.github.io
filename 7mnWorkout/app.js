@@ -75,9 +75,6 @@ const app = Vue.createApp({
         progressClass() {
             return this.timeRemaining > 10 ? 'bg-green-500' : 'bg-orange-500';
         },
-        circumference() {
-            return 2 * Math.PI * 45;
-        },
         completionDate() {
             const date = new Date();
             return date.toISOString().split('T')[0];
@@ -156,34 +153,6 @@ const app = Vue.createApp({
             const minutes = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-        },
-        calculateArcPath() {
-            // Adjust exerciseProgress to 0.9999 if it's 1 to ensure full circle drawing
-            const progress = this.exerciseProgress === 1 ? 0.9999 : this.exerciseProgress;
-
-            const outerRadius = 45;
-            const innerRadius = 40;  // Slightly smaller to create border thickness
-            const startAngle = -Math.PI / 2;
-            const endAngle = startAngle + 2 * Math.PI * progress;
-            const largeArcFlag = progress > 0.5 ? 1 : 0;
-
-            // Outer arc
-            const outerStartX = 50 + outerRadius * Math.cos(startAngle);
-            const outerStartY = 50 + outerRadius * Math.sin(startAngle);
-            const outerEndX = 50 + outerRadius * Math.cos(endAngle);
-            const outerEndY = 50 + outerRadius * Math.sin(endAngle);
-
-            // Inner arc (in reverse direction)
-            const innerStartX = 50 + innerRadius * Math.cos(endAngle);
-            const innerStartY = 50 + innerRadius * Math.sin(endAngle);
-            const innerEndX = 50 + innerRadius * Math.cos(startAngle);
-            const innerEndY = 50 + innerRadius * Math.sin(startAngle);
-
-            return `M ${outerStartX} ${outerStartY}
-                    A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY}
-                    L ${innerStartX} ${innerStartY}
-                    A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerEndX} ${innerEndY}
-                    Z`;
         },
         clearAchievements() {
             this.achievements = [];
