@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinCal - Linear Calendar Editor</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 overflow-hidden">
+    <div id="app" class="h-screen flex flex-col">
+        <!-- Compact Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 z-20">
+            <div class="px-4 py-2 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <h1 class="text-lg font-bold text-gray-900">LinCal</h1>
+                    <input
+                        type="number"
+                        v-model.number="selectedYear"
+                        @change="changeYear"
+                        class="border border-gray-300 rounded px-2 py-1 w-20 text-sm text-center"
+                    >
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        @click="resetCalendar"
+                        class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition"
+                    >
+                        Reset
+                    </button>
+                    <button
+                        @click="exportData"
+                        class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition"
+                    >
+                        Export
+                    </button>
+                    <button
+                        @click="importData"
+                        class="px-3 py-1 text-sm bg-purple-500 text-white rounded hover:bg-purple-600 transition"
+                    >
+                        Import
+                    </button>
+                    <input
+                        type="file"
+                        ref="fileInput"
+                        @change="handleFileImport"
+                        accept=".json"
+                        class="hidden"
+                    >
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content with Calendar and Sidebar -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Calendar Area -->
+            <main class="flex-1 overflow-auto p-2">
+                <div class="calendar-container vertical">
+                    <!-- Month blocks -->
+                    <div
+                        v-for="(month, monthIndex) in months"
+                        :key="monthIndex"
+                        class="month-block"
+                    >
+                        <div class="month-header">
+                            <h2 class="text-xs font-semibold">{{ month.name }}</h2>
+                        </div>
+
+                        <!-- Days in month with event bars -->
+                        <div class="days-wrapper">
+                            <!-- Day cells -->
+                            <div class="days-container">
+                                <div
+                                    v-for="day in month.days"
+                                    :key="`${monthIndex}-${day}`"
+                                    :class="['day-cell', {
+                                        'today': isToday(monthIndex, day),
+                                        'weekend': isWeekend(monthIndex, day)
+                                    }]"
+                                    :data-date="getDateKey(monthIndex, day)"
+                                >
+                                    <div class="day-clickable" @click="selectDay(monthIndex, day)">
+                                        <span class="day-number">{{ day }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event bars overlay -->
+                            <div class="events-layer">
+                                <div
+                                    v-for="event in getMonthEvents(monthIndex)"
+                                    :key="event.id"
+                                    :class="['event-bar', { 'selected': selectedEvent && selectedEvent.id === event.id }]"
+                                    :style="getEventStyle(event, monthIndex)"
+                                    @click.stop="selectEvent(event)"
+                                    @mousedown="startResize($event, event)"
+                                >
+                                    <div class="event-content">
+                                        <span class="event-title">{{ event.title }}</span>
+                                    </div>
+                                    <div class="resize-handle resize-left" @mousedown.stop="startResize($event, event, 'left')"></div>
+                                    <div class="resize-handle resize-right" @mousedown.stop="startResize($event, event, 'right')"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Sidebar Editor -->
+            <aside
+                v-if="showSidebar"
+                class="w-80 bg-white border-l border-gray-200 shadow-lg flex flex-col"
+            >
+                <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                    <h3 class="font-semibold text-gray-900">
+                        {{ selectedEvent ? 'Edit Event' : 'New Event' }}
+                    </h3>
+                    <button @click="closeSidebar" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4">
+                    <form @submit.prevent="saveEvent" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input
+                                v-model="eventForm.title"
+                                type="text"
+                                required
+                                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Event title"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea
+                                v-model="eventForm.description"
+                                rows="3"
+                                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Event description (optional)"
+                            ></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                            <input
+                                v-model="eventForm.startDate"
+                                type="date"
+                                required
+                                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input
+                                v-model="eventForm.endDate"
+                                type="date"
+                                required
+                                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                            <div class="flex gap-2 flex-wrap">
+                                <button
+                                    v-for="color in eventColors"
+                                    :key="color"
+                                    type="button"
+                                    @click="eventForm.color = color"
+                                    :class="['w-8 h-8 rounded-full border-2', eventForm.color === color ? 'border-gray-900' : 'border-gray-300']"
+                                    :style="{ backgroundColor: color }"
+                                ></button>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 pt-4">
+                            <button
+                                type="submit"
+                                class="flex-1 bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition"
+                            >
+                                {{ selectedEvent ? 'Update' : 'Create' }}
+                            </button>
+                            <button
+                                v-if="selectedEvent"
+                                type="button"
+                                @click="deleteEvent"
+                                class="px-4 py-2 bg-red-500 text-white rounded text-sm hover:bg-red-600 transition"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
