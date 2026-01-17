@@ -5,7 +5,7 @@ date: 2026-01-17
 layout: page
 ---
 
-![Hero: Multi-Touch and Pen Paradigm](/assets/images/the-touch-interface-paradigm-ipad-workflow/hero-touch-pen-paradigm.png)
+![Hero: Multi-Touch and Pen Paradigm](/assets/images/the-touch-interface-paradigm-ipad-workflow/hero-touch-pen-paradigm.png){: width="90%" }
 
 ## Introduction
 
@@ -13,7 +13,7 @@ Tablets introduced two new types of interface that we didn't have before, fundam
 
 **The first is multi-touch.** Tap, drag, pinch, rotate: multiple fingers working in parallel. The result is direct manipulation: you're not pointing at something and clicking; you're grabbing it.
 
-**The second is the pen.** Styluses like the Apple Pencil, Surface Pen, or S Pen transfer everything you've learned writing in the physical world to the digital one. Drawing, handwriting, sketching: the barrier between paper and screen disappears.
+**The second is the pen.** Styluses like the Apple Pencil, Surface Pen, or S-Pen transfer everything you've learned writing in the physical world to the digital one. Drawing, handwriting, sketching: the barrier between paper and screen disappears.
 
 These are the two major changes tablets bring to human-computer interaction.
 
@@ -27,7 +27,7 @@ Before diving into the apps, it's worth asking: when is touch genuinely better, 
 
 **Touch wins when you need multiple simultaneous inputs.** Pinching while rotating while dragging. Try that with a mouse. Multi-touch enables interactions that are impossible with single-pointer devices.
 
-![Multi-Touch vs Single Pointer: The difference in capability](/assets/images/the-touch-interface-paradigm-ipad-workflow/multitouch-vs-single-pointer.png)
+![Multi-Touch vs Single Pointer: The difference in capability](/assets/images/the-touch-interface-paradigm-ipad-workflow/multitouch-vs-single-pointer.png){: width="90%" }
 
 **But here's the deeper insight: many more tasks than we assume can be made spatial through visualization.** Data is abstract, but its representation doesn't have to be. A database is rows and columns, until you visualize it as a graph you can pinch and rearrange. A musical composition is a timeline, until you see it as blocks you can drag and stretch. The key is that editing the visualization edits the data underneath.
 
@@ -35,7 +35,7 @@ This isn't speculation: the most successful touch apps already prove it. 3D scul
 
 Touch becomes powerful not just for "inherently spatial tasks" but for *any task where the data can be visualized spatially*, and with creative design, that's far more than we've explored.
 
-![Spatial Visualization: Transforming abstract data into touchable interfaces](/assets/images/the-touch-interface-paradigm-ipad-workflow/spatial-visualization-concept.png)
+![Spatial Visualization: Transforming abstract data into touchable interfaces](/assets/images/the-touch-interface-paradigm-ipad-workflow/spatial-visualization-concept.png){: width="90%" }
 
 **Touch seems to lose in some contexts, but that's often a failure of visualization, not a limitation of touch.** Text-heavy work, spreadsheets, code editing: these feel awkward because their interfaces were designed for mouse and keyboard. Reimagine them with spatial visualization and touch-native interaction, and the limitations dissolve.
 
@@ -54,7 +54,7 @@ There are categories of applications where these new forms of interaction have b
 
 What do these apps have in common? They didn't port a desktop interface to touch. They started from scratch, asking "what would this task feel like if touch were the *primary* input?" Procreate doesn't give you Photoshop's menu hierarchy; it gives you gestures. Nomad Sculpt doesn't simulate a mouse clicking on vertices; it lets you push and pull clay with your fingers. Shapr3D threw out decades of CAD UI conventions and rebuilt for direct manipulation. These apps succeeded because they respected touch as a first-class interaction model, not an afterthought.
 
-![Success Apps: Touch-native applications that got it right](/assets/images/the-touch-interface-paradigm-ipad-workflow/success-apps-grid.png)
+![Success Apps: Touch-native applications that got it right](/assets/images/the-touch-interface-paradigm-ipad-workflow/success-apps-grid.png){: width="90%" }
 
 ## Why Hasn't There Been More Innovation?
 
@@ -91,7 +91,7 @@ When you need more power, WebAssembly lets you run near-native code in the brows
 
 Each path has mature tools, active ecosystems, and real apps in production. The technical excuses are gone. (See the [Appendix](#appendix-technical-resources) for specific frameworks and libraries.)
 
-![Technical Spectrum: From prototype to production](/assets/images/the-touch-interface-paradigm-ipad-workflow/technical-spectrum.png)
+![Technical Spectrum: From prototype to production](/assets/images/the-touch-interface-paradigm-ipad-workflow/technical-spectrum.png){: width="90%" }
 
 ### GenAI: The Democratization of Development
 
@@ -171,7 +171,7 @@ Today's text editors on tablets are desktop apps with touch bolted on. You tap t
 
 These aren't trivial problems. But they're *design* problems, not technical impossibilities. And the primitives (gesture recognition, text layout engines, handwriting recognition) already exist. What's missing is someone willing to assemble them into a coherent vision.
 
-![Touch-Native Text Editor: A vision for gesture-driven writing](/assets/images/the-touch-interface-paradigm-ipad-workflow/touch-native-text-editor.png)
+![Touch-Native Text Editor: A vision for gesture-driven writing](/assets/images/the-touch-interface-paradigm-ipad-workflow/touch-native-text-editor.png){: width="90%" }
 
 ---
 
