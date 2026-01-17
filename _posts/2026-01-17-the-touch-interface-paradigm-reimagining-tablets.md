@@ -1,7 +1,8 @@
 ---
-layout: post
-title: "The Touch Interface Paradigm: Reimagining Tablets"
+title: The Touch Interface Paradigm: Reimagining Tablets
+author: Sebas
 date: 2026-01-17
+layout: page
 ---
 
 ![Hero: Multi-Touch and Pen Paradigm](/assets/images/the-touch-interface-paradigm-ipad-workflow/hero-touch-pen-paradigm.png)
