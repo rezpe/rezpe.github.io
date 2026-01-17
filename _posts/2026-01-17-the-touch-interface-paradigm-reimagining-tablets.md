@@ -1,5 +1,5 @@
 ---
-title: The Touch Interface Paradigm: Reimagining Tablets
+title: The Touch Interface Paradigm; Reimagining Tablets
 author: Sebas
 date: 2026-01-17
 layout: page
