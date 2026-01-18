@@ -1,5 +1,5 @@
 ---
-title: Beyond Flows: Why Visual Automation Needs a New Paradigm
+title: Beyond Flows; Why Visual Automation Needs a New Paradigm
 author: Sebas
 date: 2026-01-18
 layout: page
