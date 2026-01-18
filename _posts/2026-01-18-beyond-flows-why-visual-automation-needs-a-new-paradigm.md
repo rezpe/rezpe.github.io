@@ -5,6 +5,12 @@ date: 2026-01-18
 layout: page
 ---
 
+---
+title: "Beyond Flows: Why Visual Automation Needs a New Paradigm"
+---
+
+# Beyond Flows: Why Visual Automation Needs a New Paradigm
+
 ## Introduction
 
 The no-code movement promised to democratize software development. Tools like Make (formerly Integromat), Zapier, Pipedream, n8n, and countless others let anyone build automations by connecting visual blocks. No programming required. Just drag, drop, connect, and watch data flow between your apps.
