@@ -1,386 +1,160 @@
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap');
-
-    body {
-        font-family: Didact Gothic, sans-serif;
-        font-size: 120%;
-        max-width: 40em;
-        margin: 0px auto;
-        padding: 0em 1em 1em 1em;
-        line-height: 1.6;
-    }
-
-    .highlight .hll {
-        background-color: #ffffcc
-    }
-
-    .highlight {
-        background: #f8f8f8;
-    }
-
-    .highlight .c {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment */
-    .highlight .err {
-        border: 1px solid #FF0000
-    }
-
-    /* Error */
-    .highlight .k {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Keyword */
-    .highlight .o {
-        color: #666666
-    }
-
-    /* Operator */
-    .highlight .ch {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment.Hashbang */
-    .highlight .cm {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment.Multiline */
-    .highlight .cp {
-        color: #BC7A00
-    }
-
-    /* Comment.Preproc */
-    .highlight .cpf {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment.PreprocFile */
-    .highlight .c1 {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment.Single */
-    .highlight .cs {
-        color: #408080;
-        font-style: italic
-    }
-
-    /* Comment.Special */
-    .highlight .gd {
-        color: #A00000
-    }
-
-    /* Generic.Deleted */
-    .highlight .ge {
-        font-style: italic
-    }
-
-    /* Generic.Emph */
-    .highlight .gr {
-        color: #FF0000
-    }
-
-    /* Generic.Error */
-    .highlight .gh {
-        color: #000080;
-        font-weight: bold
-    }
-
-    /* Generic.Heading */
-    .highlight .gi {
-        color: #00A000
-    }
-
-    /* Generic.Inserted */
-    .highlight .go {
-        color: #888888
-    }
-
-    /* Generic.Output */
-    .highlight .gp {
-        color: #000080;
-        font-weight: bold
-    }
-
-    /* Generic.Prompt */
-    .highlight .gs {
-        font-weight: bold
-    }
-
-    /* Generic.Strong */
-    .highlight .gu {
-        color: #800080;
-        font-weight: bold
-    }
-
-    /* Generic.Subheading */
-    .highlight .gt {
-        color: #0044DD
-    }
-
-    /* Generic.Traceback */
-    .highlight .kc {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Keyword.Constant */
-    .highlight .kd {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Keyword.Declaration */
-    .highlight .kn {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Keyword.Namespace */
-    .highlight .kp {
-        color: #008000
-    }
-
-    /* Keyword.Pseudo */
-    .highlight .kr {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Keyword.Reserved */
-    .highlight .kt {
-        color: #B00040
-    }
-
-    /* Keyword.Type */
-    .highlight .m {
-        color: #666666
-    }
-
-    /* Literal.Number */
-    .highlight .s {
-        color: #BA2121
-    }
-
-    /* Literal.String */
-    .highlight .na {
-        color: #7D9029
-    }
-
-    /* Name.Attribute */
-    .highlight .nb {
-        color: #008000
-    }
-
-    /* Name.Builtin */
-    .highlight .nc {
-        color: #0000FF;
-        font-weight: bold
-    }
-
-    /* Name.Class */
-    .highlight .no {
-        color: #880000
-    }
-
-    /* Name.Constant */
-    .highlight .nd {
-        color: #AA22FF
-    }
-
-    /* Name.Decorator */
-    .highlight .ni {
-        color: #999999;
-        font-weight: bold
-    }
-
-    /* Name.Entity */
-    .highlight .ne {
-        color: #D2413A;
-        font-weight: bold
-    }
-
-    /* Name.Exception */
-    .highlight .nf {
-        color: #0000FF
-    }
-
-    /* Name.Function */
-    .highlight .nl {
-        color: #A0A000
-    }
-
-    /* Name.Label */
-    .highlight .nn {
-        color: #0000FF;
-        font-weight: bold
-    }
-
-    /* Name.Namespace */
-    .highlight .nt {
-        color: #008000;
-        font-weight: bold
-    }
-
-    /* Name.Tag */
-    .highlight .nv {
-        color: #19177C
-    }
-
-    /* Name.Variable */
-    .highlight .ow {
-        color: #AA22FF;
-        font-weight: bold
-    }
-
-    /* Operator.Word */
-    .highlight .w {
-        color: #bbbbbb
-    }
-
-    /* Text.Whitespace */
-    .highlight .mb {
-        color: #666666
-    }
-
-    /* Literal.Number.Bin */
-    .highlight .mf {
-        color: #666666
-    }
-
-    /* Literal.Number.Float */
-    .highlight .mh {
-        color: #666666
-    }
-
-    /* Literal.Number.Hex */
-    .highlight .mi {
-        color: #666666
-    }
-
-    /* Literal.Number.Integer */
-    .highlight .mo {
-        color: #666666
-    }
-
-    /* Literal.Number.Oct */
-    .highlight .sa {
-        color: #BA2121
-    }
-
-    /* Literal.String.Affix */
-    .highlight .sb {
-        color: #BA2121
-    }
-
-    /* Literal.String.Backtick */
-    .highlight .sc {
-        color: #BA2121
-    }
-
-    /* Literal.String.Char */
-    .highlight .dl {
-        color: #BA2121
-    }
-
-    /* Literal.String.Delimiter */
-    .highlight .sd {
-        color: #BA2121;
-        font-style: italic
-    }
-
-    /* Literal.String.Doc */
-    .highlight .s2 {
-        color: #BA2121
-    }
-
-    /* Literal.String.Double */
-    .highlight .se {
-        color: #BB6622;
-        font-weight: bold
-    }
-
-    /* Literal.String.Escape */
-    .highlight .sh {
-        color: #BA2121
-    }
-
-    /* Literal.String.Heredoc */
-    .highlight .si {
-        color: #BB6688;
-        font-weight: bold
-    }
-
-    /* Literal.String.Interpol */
-    .highlight .sx {
-        color: #008000
-    }
-
-    /* Literal.String.Other */
-    .highlight .sr {
-        color: #BB6688
-    }
-
-    /* Literal.String.Regex */
-    .highlight .s1 {
-        color: #BA2121
-    }
-
-    /* Literal.String.Single */
-    .highlight .ss {
-        color: #19177C
-    }
-
-    /* Literal.String.Symbol */
-    .highlight .bp {
-        color: #008000
-    }
-
-    /* Name.Builtin.Pseudo */
-    .highlight .fm {
-        color: #0000FF
-    }
-
-    /* Name.Function.Magic */
-    .highlight .vc {
-        color: #19177C
-    }
-
-    /* Name.Variable.Class */
-    .highlight .vg {
-        color: #19177C
-    }
-
-    /* Name.Variable.Global */
-    .highlight .vi {
-        color: #19177C
-    }
-
-    /* Name.Variable.Instance */
-    .highlight .vm {
-        color: #19177C
-    }
-
-    /* Name.Variable.Magic */
-    .highlight .il {
-        color: #666666
-    }
-
-    /* Literal.Number.Integer.Long */
-</style>
-
-<a href="/">Home</a>
-<hr />
-
-<h1>{{page.title}} <span style="font-size: 50%;">{{ page.date | date: '%B %d, %Y' }}</span></h1>
-<hr />
-<div>{{page.content}}</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{{page.title}} - Sebastien Perez Vasseur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Didact+Gothic&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6a87af",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "serif": ["Didact Gothic", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Article content styling */
+        article h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; line-height: 1.3; }
+        article h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; line-height: 1.4; }
+        article h4 { font-size: 1.1rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+        article p { margin-bottom: 1.25rem; line-height: 1.7; }
+        article ul, article ol { margin-bottom: 1.25rem; padding-left: 1.5rem; }
+        article li { margin-bottom: 0.5rem; line-height: 1.6; }
+        article a { color: #6a87af; text-decoration: underline; text-underline-offset: 2px; }
+        article a:hover { color: #5a7a9f; }
+        article img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1.5rem auto; display: block; }
+        article blockquote { border-left: 4px solid #6a87af; padding-left: 1rem; margin: 1.5rem 0; font-style: italic; color: #64748b; }
+        article strong { font-weight: 600; }
+        article code { background: #f1f5f9; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.9em; }
+
+        @media (min-width: 768px) {
+            article h2 { font-size: 1.875rem; }
+            article h3 { font-size: 1.5rem; }
+            article h4 { font-size: 1.25rem; }
+        }
+
+        .highlight .hll { background-color: #ffffcc }
+        .highlight { background: #f8f8f8; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin: 1.5rem 0; }
+        .highlight .c { color: #408080; font-style: italic }
+        .highlight .err { border: 1px solid #FF0000 }
+        .highlight .k { color: #008000; font-weight: bold }
+        .highlight .o { color: #666666 }
+        .highlight .ch { color: #408080; font-style: italic }
+        .highlight .cm { color: #408080; font-style: italic }
+        .highlight .cp { color: #BC7A00 }
+        .highlight .cpf { color: #408080; font-style: italic }
+        .highlight .c1 { color: #408080; font-style: italic }
+        .highlight .cs { color: #408080; font-style: italic }
+        .highlight .gd { color: #A00000 }
+        .highlight .ge { font-style: italic }
+        .highlight .gr { color: #FF0000 }
+        .highlight .gh { color: #000080; font-weight: bold }
+        .highlight .gi { color: #00A000 }
+        .highlight .go { color: #888888 }
+        .highlight .gp { color: #000080; font-weight: bold }
+        .highlight .gs { font-weight: bold }
+        .highlight .gu { color: #800080; font-weight: bold }
+        .highlight .gt { color: #0044DD }
+        .highlight .kc { color: #008000; font-weight: bold }
+        .highlight .kd { color: #008000; font-weight: bold }
+        .highlight .kn { color: #008000; font-weight: bold }
+        .highlight .kp { color: #008000 }
+        .highlight .kr { color: #008000; font-weight: bold }
+        .highlight .kt { color: #B00040 }
+        .highlight .m { color: #666666 }
+        .highlight .s { color: #BA2121 }
+        .highlight .na { color: #7D9029 }
+        .highlight .nb { color: #008000 }
+        .highlight .nc { color: #0000FF; font-weight: bold }
+        .highlight .no { color: #880000 }
+        .highlight .nd { color: #AA22FF }
+        .highlight .ni { color: #999999; font-weight: bold }
+        .highlight .ne { color: #D2413A; font-weight: bold }
+        .highlight .nf { color: #0000FF }
+        .highlight .nl { color: #A0A000 }
+        .highlight .nn { color: #0000FF; font-weight: bold }
+        .highlight .nt { color: #008000; font-weight: bold }
+        .highlight .nv { color: #19177C }
+        .highlight .ow { color: #AA22FF; font-weight: bold }
+        .highlight .w { color: #bbbbbb }
+        .highlight .mb { color: #666666 }
+        .highlight .mf { color: #666666 }
+        .highlight .mh { color: #666666 }
+        .highlight .mi { color: #666666 }
+        .highlight .mo { color: #666666 }
+        .highlight .sa { color: #BA2121 }
+        .highlight .sb { color: #BA2121 }
+        .highlight .sc { color: #BA2121 }
+        .highlight .dl { color: #BA2121 }
+        .highlight .sd { color: #BA2121; font-style: italic }
+        .highlight .s2 { color: #BA2121 }
+        .highlight .se { color: #BB6622; font-weight: bold }
+        .highlight .sh { color: #BA2121 }
+        .highlight .si { color: #BB6688; font-weight: bold }
+        .highlight .sx { color: #008000 }
+        .highlight .sr { color: #BB6688 }
+        .highlight .s1 { color: #BA2121 }
+        .highlight .ss { color: #19177C }
+        .highlight .bp { color: #008000 }
+        .highlight .fm { color: #0000FF }
+        .highlight .vc { color: #19177C }
+        .highlight .vg { color: #19177C }
+        .highlight .vi { color: #19177C }
+        .highlight .vm { color: #19177C }
+        .highlight .il { color: #666666 }
+    </style>
+</head>
+<body class="bg-white text-gray-900">
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="/" class="font-bold text-base tracking-tight hover:text-primary transition-colors"></a>
+            <nav class="flex gap-6">
+                <a class="text-xs font-medium hover:text-primary transition-colors" href="/#projects">Projects</a>
+                <a class="text-xs font-medium hover:text-primary transition-colors" href="/#posts">Posts</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-6 py-8 md:py-12">
+        <article>
+            <div class="mb-8 md:mb-12">
+                <a href="/" class="text-sm text-primary hover:underline mb-4 inline-block">← Home</a>
+                <h1 class="text-2xl md:text-5xl font-bold font-serif leading-tight mb-3">{{page.title}}</h1>
+                <time class="text-xs md:text-sm text-gray-400">{{ page.date | date: '%B %d, %Y' }}</time>
+            </div>
+            <div class="text-sm md:text-base leading-relaxed max-w-2xl">
+                {{page.content}}
+            </div>
+        </article>
+    </main>
+
+    <footer class="border-t border-gray-100 py-12 mt-16">
+        <div class="max-w-4xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4 text-gray-400">
+                <a class="hover:text-primary transition-colors" href="https://www.linkedin.com/in/sebastien-perez-vasseur-76938612/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                </a>
+                <a class="hover:text-primary transition-colors" href="https://github.com/rezpe">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+            </div>
+            <p class="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
+                © 2024 Sebastien Perez Vasseur
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
