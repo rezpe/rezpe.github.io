@@ -1,7 +1,7 @@
 ---
 title: Open Ai conversations
 author: Sebas
-date: 2021-10-16
+date: 2022-10-16
 layout: page
 ---
 

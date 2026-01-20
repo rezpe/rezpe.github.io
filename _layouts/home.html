@@ -34,7 +34,7 @@
                 Home
             </h1>
             <nav class="flex gap-6">
-                <a class="text-xs font-medium hover:text-primary transition-colors" href="#projects">Projects</a>
+                <a class="text-xs font-medium hover:text-primary transition-colors" href="#apps">Custom Apps</a>
                 <a class="text-xs font-medium hover:text-primary transition-colors" href="#posts">Posts</a>
             </nav>
         </div>
@@ -60,23 +60,52 @@
             </div>
         </section>
 
-        <section class="mb-16" id="projects">
+        <section class="mb-16" id="apps">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">Projects</h2>
+                <h2 class="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">Custom Apps</h2>
                 <div class="h-px flex-grow ml-4 bg-gray-100"></div>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <a class="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/3drecord/">💿 3D Record</a>
-                <a class="px-3 py-1.5 bg-green-50 border border-green-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/7mnWorkout/">🏋️ 7mn Workout</a>
-                <a class="px-3 py-1.5 bg-red-50 border border-red-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/calorieGoal/">🥗 Calorie Goal</a>
-                <a class="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/editorp/">✏️ Editor</a>
-                <a class="px-3 py-1.5 bg-green-50 border border-green-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/fairtrip/">✈️ Fair Trip</a>
-                <a class="px-3 py-1.5 bg-red-50 border border-red-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/foodPlanner/">🍱 Food Planner</a>
-                <a class="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/lincal/">🗓️ LinCal</a>
-                <a class="px-3 py-1.5 bg-green-50 border border-green-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/notes/">📝 Notes</a>
-                <a class="px-3 py-1.5 bg-red-50 border border-red-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/qrcode/">🤳 QR Code</a>
-                <a class="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/recorder/">🎙️ Recorder</a>
-                <a class="px-3 py-1.5 bg-green-50 border border-green-100 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform" href="/radiatorSim/">🌡️ Radiator Sim</a>
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-6">
+                <a class="flex flex-col items-center gap-2 group" href="/3drecord/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">💿</div>
+                    <span class="text-xs text-center font-medium text-gray-700">3D Record</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/7mnWorkout/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🏋️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">7mn Workout</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/calorieGoal/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🥗</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Calorie Goal</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/editorp/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">✏️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Editor</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/fairtrip/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">✈️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Fair Trip</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/lincal/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🗓️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">LinCal</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/notes/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">📝</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Notes</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/qrcode/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-pink-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🤳</div>
+                    <span class="text-xs text-center font-medium text-gray-700">QR Code</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/recorder/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🎙️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Recorder</span>
+                </a>
+                <a class="flex flex-col items-center gap-2 group" href="/radiatorSim/">
+                    <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-3xl shadow-lg group-hover:scale-110 transition-transform">🌡️</div>
+                    <span class="text-xs text-center font-medium text-gray-700">Radiator Sim</span>
+                </a>
             </div>
         </section>
 

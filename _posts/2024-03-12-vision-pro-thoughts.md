@@ -5,7 +5,7 @@ date: 2024-03-12
 layout: page
 ---
 
-Apple finally released the Vision Pro device on February of this year, after an announcement on June 2023. This release set again VR in the spotlight.  Even thoughMeta's Quest 3 leads the pack in the AR and VR scene with solid basics: good 3D, efficient passthrough, and precise hand tracking, all at a great price, it has failed to gain the same traction as the Apple Vision Pro. And we are talking about a device though providing top-notch OLED screens and superior passthrough, has a steeply priced at $3,500. However, it falls short of expectations, raising questions about its high-end pricing strategy.
+Apple finally released the Vision Pro device on February of this year, after an announcement on June 2023. This release set again VR in the spotlight.  Even though Meta's Quest 3 leads the pack in the AR and VR scene with solid basics: good 3D, efficient passthrough, and precise hand tracking, all at a great price, it has failed to gain the same traction as the Apple Vision Pro. And we are talking about a device though providing top-notch OLED screens and superior passthrough, has a steeply priced at $3,500. However, it falls short of expectations, raising questions about its high-end pricing strategy.
 
 First of all the price tag, set at a premium, raises expectations for something extraordinary—perhaps a lighter build or groundbreaking software innovations that justify the hefty investment. Unfortunately, these expectations fall short of reality. The device is far from being portable: it's even heavier than the Quest 3, has no reduced dimension and has even an external battery. Vision pro looks like a pair of bulky ski goggles. People using it outside on the street were ridiculed on the internet …
 

@@ -37,7 +37,7 @@ The problem is when "moderately complex" isn't enough.
 
 Here's the pattern: you start with a simple automation. It works beautifully. Then requirements evolve. You need to do *slightly* more. And suddenly you're fighting the tool.
 
-![A simple loop in code versus the tangled mess of nodes it becomes in no-code flow tools](/assets/images/limits-of-the-nocode/code-vs-flow-spaghetti.png){: width="90%" }
+![A simple loop in code versus the tangled mess of nodes it becomes in no-code flow tools](/assets/images/2026-01-18-limits-of-the-nocode/code-vs-flow-spaghetti.png){: width="90%" }
 
 ### The Data Transformation Problem
 
@@ -99,7 +99,7 @@ And that paradigm has a limit.
 
 **But here's the key insight: the limit isn't inherent to visual programming. It's inherent to flows.**
 
-![Flows are just one paradigm within the larger space of visual programming](/assets/images/limits-of-the-nocode/flows-subset-visual-programming.png){: width="90%" }
+![Flows are just one paradigm within the larger space of visual programming](/assets/images/2026-01-18-limits-of-the-nocode/flows-subset-visual-programming.png){: width="90%" }
 
 This distinction matters enormously. We've been conflating "no-code tools have limitations" with "visual programming has limitations." They're not the same thing. Flows are just *one* visual representation, and a fairly constrained one. The question isn't "how do we work around the limitations?" It's "why are we all building the same thing?"
 
@@ -109,7 +109,7 @@ This distinction matters enormously. We've been conflating "no-code tools have l
 
 Flows are just *one* way to visually represent computation. There are others:
 
-![Four alternative visual paradigms: spreadsheets, state machines, nested boxes, and tables](/assets/images/limits-of-the-nocode/alternative-paradigms-grid.png){: width="90%" }
+![Four alternative visual paradigms: spreadsheets, state machines, nested boxes, and tables](/assets/images/2026-01-18-limits-of-the-nocode/alternative-paradigms-grid.png){: width="90%" }
 
 **Spreadsheet-style (reactive cells).** Excel isn't a flow; it's a grid of cells that react to each other. Change one value, dependent cells update automatically. This paradigm handles complex calculations elegantly: rolling averages, conditional aggregations, cross-references. Tools like Airtable and Coda have brought this paradigm to databases with great success, but it's rarely integrated *into* automation flows. Why not combine them?
 
@@ -131,7 +131,7 @@ Natural language is itself a representation of logic. "Calculate the 7-day rolli
 
 What if the visual representation of your automation included natural language blocks? Not as comments. Not as documentation. As *the actual program*.
 
-![A flow node where natural language prose is the actual executable program](/assets/images/limits-of-the-nocode/natural-language-program-node.png){: width="90%" }
+![A flow node where natural language prose is the actual executable program](/assets/images/2026-01-18-limits-of-the-nocode/natural-language-program-node.png){: width="90%" }
 
 Imagine a node that simply says: "For each row, calculate sentiment score using the comment text. If negative and from a premium customer, escalate." That's your specification, and the system generates the implementation automatically, keeping both in sync. You edit the prose; the code follows.
 
@@ -147,7 +147,7 @@ Here's another angle: what if the visual representation itself was generated?
 
 Consider a concrete workflow: you have a code block that processes customer data (filtering, aggregating, transforming). Today, this appears as a generic "code" node with an icon. But what if the system could take that code, send it to a model like Gemini with: "Analyze what this code does. Think about visual representations that would communicate its logic. Generate an infographic that explains this transformation."
 
-![Before: a generic black-box code node. After: an AI-generated visualization showing what the code actually does](/assets/images/limits-of-the-nocode/ai-generated-visualization-before-after.png){: width="90%" }
+![Before: a generic black-box code node. After: an AI-generated visualization showing what the code actually does](/assets/images/2026-01-18-limits-of-the-nocode/ai-generated-visualization-before-after.png){: width="90%" }
 
 The result: instead of a black-box node, you see a generated diagram showing data flowing through filters, splitting into categories, aggregating into totals. A data aggregation step renders as a funnel chart. A filtering operation shows a before/after comparison. A branching decision becomes a visual decision tree. Each visualization is bespoke, tailored to what *that specific code* actually does.
 
@@ -161,7 +161,7 @@ Here's the deeper principle: **the representation should adapt to the task, not 
 
 When you're designing the high-level structure, you want to see flows or state machines. When you're debugging a data transformation, you want to see the data, maybe as a table, maybe as a diff. When you're tweaking business logic, you want to edit natural language. When you're optimizing performance, you want to see execution traces.
 
-![The same automation shown in four different views: design, debug, logic, and performance](/assets/images/limits-of-the-nocode/malleable-representation-views.png){: width="90%" }
+![The same automation shown in four different views: design, debug, logic, and performance](/assets/images/2026-01-18-limits-of-the-nocode/malleable-representation-views.png){: width="90%" }
 
 Same underlying automation. Different views. The tool morphs to match your intent.
 
@@ -173,7 +173,7 @@ No-code tools today give you one view. Take it or leave it. But there's no law o
 
 Picture a canvas where the flow paradigm is your backbone, the familiar trigger-to-action structure that works well for orchestration. But within that flow, different nodes speak different visual languages:
 
-![A unified canvas where different nodes use different visual paradigms: data transforms as infographics, batch processing as tables, business logic as prose, state machines as diagrams](/assets/images/limits-of-the-nocode/hero-unified-canvas.png){: width="90%" }
+![A unified canvas where different nodes use different visual paradigms: data transforms as infographics, batch processing as tables, business logic as prose, state machines as diagrams](/assets/images/2026-01-18-limits-of-the-nocode/hero-unified-canvas.png){: width="90%" }
 
 - A **data transformation node** that's actually a code block, but rendered as an AI-generated infographic showing exactly how your data morphs: inputs on the left, outputs on the right, the transformation visualized as a diagram that regenerates when you edit the code.
 
