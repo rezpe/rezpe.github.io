@@ -5,16 +5,24 @@ date: 2024-08-23
 layout: page
 ---
 
+## Introduction
+
 The internet's current landscape is dominated by a business model centered on free, ad-supported content. This model applies to various forms of online media, including articles and videos, specially Youtube. Google has significantly benefited from and reinforced this paradigm by making vast amounts of information easily accessible and monetizing this service through targeted advertising. 
 
 This approach has led to an abundance of free content for users. Users can instantly find answers to questions, read news articles, watch videos, and engage with diverse content without financial barriers. This democratization of knowledge has empowered individuals to learn, stay informed, and explore new interests with ease. The model also enables a more personalized experience, as targeted advertising often leads to content recommendations tailored to individual preferences. Additionally, consumers benefit from continuous improvements in user experience and features, as platforms compete for attention in this ad-driven ecosystem. This model has fostered innovation and variety in content creation, giving consumers more choices and voices to engage with than ever before.
 
+## The Downsides of Ad-Supported Content
+
 The ad-supported free content model, while offering vast access to information, comes with significant drawbacks. Users face constant distractions from ads and notifications, leading to decreased attention spans and difficulty focusing. The overwhelming flood of content creates information overload, making it challenging to discern quality amid the quantity. Platforms employ addictive design tactics to maximize engagement, often at the expense of users' time and mental well-being. This model incentivizes the rapid production of content, potentially sacrificing depth and accuracy for virality. Personalized content algorithms can create filter bubbles, limiting exposure to diverse viewpoints. Privacy concerns arise from extensive data collection for ad targeting. The constant stream of media can negatively impact mental health, contributing to anxiety and depression. Users often find themselves wasting time, consuming more content than intended. Moreover, this ecosystem can facilitate the spread of misinformation, as attention-grabbing content is prioritized over factual accuracy, ultimately shaping a digital landscape that prioritizes engagement over user well-being and informational integrity.
+
+## How GenAI Changes the Equation
 
 Generative AI is a type of artificial intelligence that creates new content like text, images, audio, and video. Trained on vast datasets, these AI systems can rapidly produce human-like outputs across various domains. 
 
 One of the applications of GenAI are chatbots and assistants who are emerging as new interfaces for information access, potentially supplanting traditional search engines and content platforms. These AI tools can provide direct answers and synthesized information, reducing time spent on ad-supported websites.
 Furthermore, GenAI is democratizing content creation, allowing individuals and small businesses to produce professional-quality content cheaply. This could lead to a flood of new content, further fragmenting audience attention and challenging existing content monetization strategies.
+
+## The New Subscription-Based Landscape
 
 These 2 applications are creating a new type of setting where:
 
@@ -32,6 +40,8 @@ These 2 applications are creating a new type of setting where:
 - **AI-powered research assistants:** Providing tailored research summaries and insights.
 - **Customizable content generation tools:** Creating unique text, images, and code.
 - **Exclusive access to cutting-edge AI models:** Offering early access to the latest advancements.
+
+## The New Problems
 
 But this has its own set of problems:
 

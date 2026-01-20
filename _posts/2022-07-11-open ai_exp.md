@@ -5,9 +5,15 @@ date: 2022-10-16
 layout: page
 ---
 
+*Update: This article was written in October 2022, showcasing early experiments with GPT-3. AI capabilities have advanced dramatically since then.*
+
+---
+
+## Introduction
+
 Those are conversations I had with GPT-3:
 
-_______________________________________________
+## SVG Animation Experiment
 
 For this SVG:
 
@@ -56,7 +62,7 @@ Which way is recommended ?
 
 There is no definitive answer, but GSAP is generally considered more powerful and easy to use than other animation libraries.
 
-______________________________________________
+## SVG Path Morphing Experiment
 
 For this SVG:
 
@@ -91,7 +97,7 @@ setInterval(function() {
 }, 1000);
 ```
 
-______________________________________
+## Task Management CLI Experiment
 
 The bash commands available are:
 

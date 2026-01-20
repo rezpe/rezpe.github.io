@@ -5,6 +5,9 @@ date: 2023-01-10
 layout: page
 ---
 
+
+## The Traditional Grading Model
+
 When students begin a course, they may have diverse degrees of knowledge and comprehension. 
 ![](/assets/images/2023-01-10-learning-exp-img/nostudent.png){: width="90%" }
 
@@ -17,6 +20,8 @@ A final grading exam is often conducted after the course to assess which student
 ![](/assets/images/2023-01-10-learning-exp-img/onestudentgrade.png){: width="90%" }
 
 
+## The Problem with Final Grades
+
 The difficulty with this system is that it does not take into account individual student's learning experiences. 
 ![](/assets/images/2023-01-10-learning-exp-img/manystudent.png){: width="90%" }
 
@@ -25,6 +30,8 @@ As the course proceeds, it is not unusual for some students to study at a faster
 ![](/assets/images/2023-01-10-learning-exp-img/faststudent.png){: width="90%" }
 ![](/assets/images/2023-01-10-learning-exp-img/slowstudent.png){: width="90%" }
 
+
+## A Better Approach: Measuring Progress
 
 Some students may fail to study because they lack prior knowledge, have learning difficulties, or are dealing with other personal issues. As they struggle to keep up with their peers, these student may feel disappointed. Furthermore, we can also have certain pupils being "blocked" and unable to learn. 
 

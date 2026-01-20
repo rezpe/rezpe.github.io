@@ -5,6 +5,9 @@ date: 2023-03-27
 layout: page
 ---
 
+
+## Introduction
+
 We are going to first scan the bills. This usually generates a pdf, which we need to convert into an image so we can start processing it.
 
 ```python
@@ -15,6 +18,8 @@ pages = convert_from_path("./Bills/2022_05_31_13_09_46.pdf")
 for i in range(len(pages)):
   pages[i].save('page'+ str(i) +'.jpg', 'JPEG')
 ```
+
+## Cropping and Resizing
 
 As the scanned bill has only 1 image, we read only the first and start cropping and resizing it:
 
@@ -45,6 +50,8 @@ image = res_img
 ```
 
 
+
+## Greyscale Conversion and Rotation
 
 We then convert to greyscale and rotate for easier processing
 
@@ -94,6 +101,8 @@ print("[INFO] angle: {:.3f}".format(angle))
 cv2.imwrite('pagegood.jpg', rotated)
 ```
 
+## Text Extraction with Keras-OCR
+
 And finally, we extract the text with keras-ocr
 
 ```python
@@ -112,6 +121,8 @@ images = ["pagegood.jpg"]
 # (word, box) tuples.
 prediction = pipeline.recognize(images)[0]
 ```
+
+## Visualizing the Results
 
 We can then see the extracted text with the code below:
 
