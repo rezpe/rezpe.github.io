@@ -16,15 +16,78 @@
             </div>
             <div v-if="showConfig" class="mb-4 p-4 bg-gray-100 rounded-md">
                 <h2 class="text-xl font-semibold text-gray-900 mb-2">Configuration</h2>
-                <label for="apiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key:</label>
-                <div class="mt-1 flex rounded-md shadow-sm">
-                    <input type="password" name="apiKey" id="apiKey" v-model="apiKey" 
-                           class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300" 
-                           placeholder="Enter your OpenAI API key">
-                    <button @click="saveApiKey" 
-                            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 text-sm">
-                        💾 Save
-                    </button>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Transcription Mode:</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" v-model="transcriptionMode" value="api" class="form-radio text-indigo-600">
+                            <span class="ml-2">API (OpenAI)</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" v-model="transcriptionMode" value="local" class="form-radio text-indigo-600">
+                            <span class="ml-2">Local (Offline)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div v-if="transcriptionMode === 'api'" class="mb-4">
+                    <label for="apiKey" class="block text-sm font-medium text-gray-700">OpenAI API Key:</label>
+                    <div class="mt-1 flex rounded-md shadow-sm">
+                        <input type="password" name="apiKey" id="apiKey" v-model="apiKey"
+                               class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300"
+                               placeholder="Enter your OpenAI API key">
+                    </div>
+                </div>
+
+                <div v-if="transcriptionMode === 'local'" class="mb-4">
+                    <label for="localModel" class="block text-sm font-medium text-gray-700">Whisper Model:</label>
+                    <select v-model="selectedModel" id="localModel"
+                            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option v-for="model in availableModels" :key="model.id" :value="model.id">
+                            {{ model.name }} ({{ model.size }})
+                        </option>
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">{{ getModelDescription(selectedModel) }}</p>
+                    <div v-if="modelLoaded && currentLoadedModel === selectedModel" class="mt-2 text-sm text-green-600">
+                        ✓ Model loaded and ready
+                    </div>
+                </div>
+
+                <button @click="saveConfig"
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    💾 Save Settings
+                </button>
+            </div>
+
+            <div v-if="showProgress" class="mb-4 p-4 bg-blue-50 rounded-md">
+                <h3 class="text-sm font-medium text-blue-800 mb-2">Downloading Model...</h3>
+                <div class="space-y-2">
+                    <div v-for="(item, key) in downloadProgress" :key="key" class="text-xs">
+                        <div class="flex justify-between text-gray-600 mb-1">
+                            <span class="truncate max-w-xs">{{ item.file }}</span>
+                            <span>{{ Math.round(item.progress) }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                 :style="{ width: item.progress + '%' }"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="isTranscribing" class="mb-4 p-4 bg-green-50 rounded-md">
+                <h3 class="text-sm font-medium text-green-800 mb-2">Transcribing Audio...</h3>
+                <div class="flex justify-between text-gray-600 mb-1 text-sm">
+                    <span>Progress: {{ transcribeProgress.processedChunks }}/{{ transcribeProgress.totalChunks }} chunks</span>
+                    <span>{{ Math.round(transcribeProgress.progress) }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                    <div class="bg-green-600 h-3 rounded-full transition-all duration-300"
+                         :style="{ width: transcribeProgress.progress + '%' }"></div>
+                </div>
+                <div v-if="transcribeProgress.partialText" class="text-xs text-gray-600 italic truncate">
+                    "{{ transcribeProgress.partialText }}"
                 </div>
             </div>
             <div class="space-y-4">
@@ -61,7 +124,7 @@
     </div>
 
     <script>
-        const { createApp, ref } = Vue;
+        const { createApp, ref, reactive } = Vue;
 
         createApp({
             setup() {
@@ -72,21 +135,132 @@
                 const isAudioPaused = ref(false);
                 const showConfig = ref(false);
                 const apiKey = ref('');
+                const transcriptionMode = ref('api');
+                const selectedModel = ref('onnx-community/whisper-tiny');
+                const modelLoaded = ref(false);
+                const currentLoadedModel = ref('');
+                const showProgress = ref(false);
+                const downloadProgress = reactive({});
+                const isTranscribing = ref(false);
+                const transcribeProgress = reactive({
+                    progress: 0,
+                    processedChunks: 0,
+                    totalChunks: 0,
+                    partialText: ''
+                });
+
+                const availableModels = ref([
+                    { id: 'onnx-community/whisper-tiny', name: 'Tiny (Multilingual)', size: '~40MB', description: 'Fastest, lowest accuracy. Good for testing.' },
+                    { id: 'onnx-community/whisper-tiny.en', name: 'Tiny (English)', size: '~40MB', description: 'Fastest, English only.' },
+                    { id: 'onnx-community/whisper-base', name: 'Base (Multilingual)', size: '~75MB', description: 'Fast, better accuracy than tiny.' },
+                    { id: 'onnx-community/whisper-base.en', name: 'Base (English)', size: '~75MB', description: 'Fast, English only, good accuracy.' },
+                    { id: 'onnx-community/whisper-small', name: 'Small (Multilingual)', size: '~250MB', description: 'Balanced speed and accuracy.' },
+                    { id: 'onnx-community/whisper-small.en', name: 'Small (English)', size: '~250MB', description: 'Balanced, English only.' }
+                ]);
+
                 let mediaRecorder;
                 let audioChunks = [];
                 let currentAudio = null;
+                let whisperWorker = null;
+                let transcribeResolve = null;
+                let transcribeReject = null;
+
+                const getModelDescription = (modelId) => {
+                    const model = availableModels.value.find(m => m.id === modelId);
+                    return model ? model.description : '';
+                };
+
+                const initWorker = () => {
+                    if (whisperWorker) return;
+
+                    whisperWorker = new Worker('./whisper-worker.js', { type: 'module' });
+
+                    whisperWorker.onmessage = (event) => {
+                        const { type, message, text, file, progress } = event.data;
+
+                        switch (type) {
+                            case 'loading':
+                                status.value = message;
+                                showProgress.value = true;
+                                break;
+                            case 'progress':
+                                if (file) {
+                                    downloadProgress[file] = { file, progress };
+                                }
+                                break;
+                            case 'file_done':
+                                if (file && downloadProgress[file]) {
+                                    downloadProgress[file].progress = 100;
+                                }
+                                break;
+                            case 'ready':
+                                showProgress.value = false;
+                                Object.keys(downloadProgress).forEach(key => delete downloadProgress[key]);
+                                modelLoaded.value = true;
+                                currentLoadedModel.value = selectedModel.value;
+                                status.value = 'Model loaded and ready.';
+                                break;
+                            case 'transcribing':
+                                isTranscribing.value = true;
+                                transcribeProgress.progress = 0;
+                                transcribeProgress.processedChunks = 0;
+                                transcribeProgress.totalChunks = event.data.totalChunks || 1;
+                                transcribeProgress.partialText = '';
+                                status.value = `Transcribing ${Math.round(event.data.audioDuration || 0)}s of audio...`;
+                                break;
+                            case 'transcribe_progress':
+                                transcribeProgress.progress = event.data.progress;
+                                transcribeProgress.processedChunks = event.data.processedChunks;
+                                transcribeProgress.totalChunks = event.data.totalChunks;
+                                transcribeProgress.partialText = event.data.partialText || '';
+                                break;
+                            case 'result':
+                                isTranscribing.value = false;
+                                transcribeProgress.progress = 100;
+                                if (transcribeResolve) {
+                                    transcribeResolve(text);
+                                    transcribeResolve = null;
+                                    transcribeReject = null;
+                                }
+                                break;
+                            case 'error':
+                                showProgress.value = false;
+                                isTranscribing.value = false;
+                                status.value = 'Error: ' + message;
+                                if (transcribeReject) {
+                                    transcribeReject(new Error(message));
+                                    transcribeResolve = null;
+                                    transcribeReject = null;
+                                }
+                                break;
+                        }
+                    };
+                };
+
+                const loadModel = () => {
+                    initWorker();
+                    modelLoaded.value = false;
+                    whisperWorker.postMessage({ type: 'load', model: selectedModel.value });
+                };
 
                 const toggleConfig = () => {
                     showConfig.value = !showConfig.value;
                     if (showConfig.value) {
                         apiKey.value = localStorage.getItem('openaiApiKey') || '';
+                        transcriptionMode.value = localStorage.getItem('transcriptionMode') || 'api';
+                        selectedModel.value = localStorage.getItem('selectedModel') || 'onnx-community/whisper-tiny';
                     }
                 };
 
-                const saveApiKey = () => {
-                    localStorage.setItem('openaiApiKey', apiKey.value);
+                const saveConfig = () => {
+                    localStorage.setItem('transcriptionMode', transcriptionMode.value);
+                    if (transcriptionMode.value === 'api') {
+                        localStorage.setItem('openaiApiKey', apiKey.value);
+                    } else {
+                        localStorage.setItem('selectedModel', selectedModel.value);
+                    }
                     showConfig.value = false;
-                    status.value = 'API Key saved successfully.';
+                    status.value = 'Settings saved successfully.';
                 };
 
                 const startRecording = async () => {
@@ -163,6 +337,16 @@
                 };
 
                 const transcribeRecording = async (index) => {
+                    const mode = localStorage.getItem('transcriptionMode') || 'api';
+
+                    if (mode === 'api') {
+                        await transcribeWithApi(index);
+                    } else {
+                        await transcribeWithLocal(index);
+                    }
+                };
+
+                const transcribeWithApi = async (index) => {
                     const storedApiKey = localStorage.getItem('openaiApiKey');
                     if (!storedApiKey) {
                         status.value = 'Error: OpenAI API Key not set. Please configure it in the settings.';
@@ -194,6 +378,71 @@
                     } catch (error) {
                         status.value = 'Error: ' + error.message;
                     }
+                };
+
+                const transcribeWithLocal = async (index) => {
+                    const storedModel = localStorage.getItem('selectedModel') || 'onnx-community/whisper-tiny';
+
+                    // Reset progress state
+                    transcribeProgress.progress = 0;
+                    transcribeProgress.processedChunks = 0;
+                    transcribeProgress.totalChunks = 0;
+                    transcribeProgress.partialText = '';
+
+                    try {
+                        if (!modelLoaded.value || currentLoadedModel.value !== storedModel) {
+                            selectedModel.value = storedModel;
+                            status.value = 'Loading model (first time may take a while)...';
+                            loadModel();
+
+                            await new Promise((resolve, reject) => {
+                                const checkReady = setInterval(() => {
+                                    if (modelLoaded.value && currentLoadedModel.value === storedModel) {
+                                        clearInterval(checkReady);
+                                        resolve();
+                                    }
+                                }, 100);
+
+                                setTimeout(() => {
+                                    clearInterval(checkReady);
+                                    reject(new Error('Model loading timeout'));
+                                }, 300000);
+                            });
+                        }
+
+                        status.value = 'Converting audio...';
+                        const audioData = await blobToFloat32Array(recordings.value[index].blob);
+
+                        status.value = 'Transcribing...';
+                        const text = await new Promise((resolve, reject) => {
+                            transcribeResolve = resolve;
+                            transcribeReject = reject;
+                            whisperWorker.postMessage({ type: 'transcribe', audio: audioData });
+                        });
+
+                        recordings.value[index].transcription = text;
+                        saveToWebStorage();
+                        isTranscribing.value = false;
+                        status.value = 'Transcription complete.';
+                    } catch (error) {
+                        isTranscribing.value = false;
+                        status.value = 'Error: ' + error.message;
+                    }
+                };
+
+                const blobToFloat32Array = async (blob) => {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                    const offlineContext = new OfflineAudioContext(1, audioBuffer.duration * 16000, 16000);
+                    const source = offlineContext.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.connect(offlineContext.destination);
+                    source.start();
+
+                    const renderedBuffer = await offlineContext.startRendering();
+                    return renderedBuffer.getChannelData(0);
                 };
 
                 const saveToWebStorage = () => {
@@ -256,6 +505,15 @@
                     isAudioPaused,
                     showConfig,
                     apiKey,
+                    transcriptionMode,
+                    selectedModel,
+                    availableModels,
+                    modelLoaded,
+                    currentLoadedModel,
+                    showProgress,
+                    downloadProgress,
+                    isTranscribing,
+                    transcribeProgress,
                     startRecording,
                     stopRecording,
                     playRecording,
@@ -264,7 +522,8 @@
                     removeRecording,
                     transcribeRecording,
                     toggleConfig,
-                    saveApiKey
+                    saveConfig,
+                    getModelDescription
                 };
             }
         }).mount('#app');
