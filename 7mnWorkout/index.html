@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -18,56 +18,62 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#25f46a",
-                        "background-light": "#f5f8f6",
-                        "background-dark": "#102216",
+                        "primary": "#a8d4f0",
+                        "primary-dark": "#7bb8db",
+                        "background-light": "#faf7f2",
+                        "background-dark": "#f5f0e8",
+                        "card": "#ffffff",
+                        "card-alt": "#f0ebe3",
+                        "text-primary": "#2d3436",
+                        "text-secondary": "#636e72",
+                        "accent-lavender": "#c9b8d9",
+                        "accent-coral": "#f8c4b4",
+                        "accent-mint": "#b8e0c8",
                     },
                     fontFamily: {
                         "display": ["Lexend", "sans-serif"]
                     },
-                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "full": "9999px"},
                 },
             },
         }
     </script>
 </head>
 
-<body class="font-display bg-background-light dark:bg-background-dark">
+<body class="font-display bg-background-light text-text-primary">
     <div id="app">
         <!-- Home Screen -->
         <div v-if="screen === 'home'" class="app-container">
             <!-- Top App Bar -->
-            <div class="home-header sticky top-0 z-10 flex items-center justify-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
-                <h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">7 Minute Blitz</h1>
+            <div class="home-header sticky top-0 z-10 flex items-center justify-center bg-background-light/90 backdrop-blur-sm">
+                <h1 class="text-text-primary text-xl font-bold leading-tight tracking-[-0.015em]">7 Minute Blitz</h1>
             </div>
             <!-- Main Content Area -->
             <div class="home-content">
                 <!-- Header Image -->
-                <div class="home-hero w-full flex flex-col justify-end overflow-hidden relative mx-auto rounded-3xl">
+                <div class="home-hero w-full flex flex-col justify-end overflow-hidden relative mx-auto rounded-xl bg-card-alt">
                     <img src="img/workout.png" alt="Workout" class="w-full h-full object-contain">
-                    <div class="absolute inset-0 bg-gradient-to-t from-background-dark/80 to-transparent pointer-events-none"></div>
                 </div>
                 <!-- Headline & Body Text -->
-                <h1 class="text-white tracking-light text-[32px] font-bold leading-tight text-center pb-2 pt-6">Ready to go, Sebas?</h1>
-                <p class="text-white/70 text-base font-normal leading-normal pb-6 text-center">Consistency is key.</p>
-                
-                
+                <h1 class="text-text-primary tracking-light text-[28px] font-bold leading-tight text-center pb-2 pt-6">Ready to go, Sebas?</h1>
+                <p class="text-text-secondary text-base font-normal leading-relaxed pb-4 text-center">Consistency is key.</p>
+
                 <!-- Primary CTA Button -->
-                <div class="flex justify-center items-center py-6">
-                    <button @click="startWorkout" class="home-cta flex flex-row items-center justify-center rounded-lg bg-primary font-bold shadow-lg shadow-primary/30" style="color: #000000 !important;">
-                        <span class="material-symbols-outlined" style="font-size: 24px; color: #000000 !important;">play_arrow</span>
-                        <span class="text-base font-bold" style="color: #000000 !important;">Start</span>
+                <div class="flex justify-center items-center py-4">
+                    <button @click="startWorkout" class="home-cta flex flex-row items-center justify-center rounded-full bg-primary hover:bg-primary-dark font-bold shadow-lg shadow-primary/40 transition-all text-text-primary gap-2 px-8 py-4">
+                        <span class="material-symbols-outlined text-text-primary" style="font-size: 24px;">play_arrow</span>
+                        <span class="text-base font-bold text-text-primary">Start Workout</span>
                     </button>
                 </div>
             </div>
             <!-- Bottom Navigation -->
-            <div class="home-nav w-full bg-background-dark/80 backdrop-blur-sm border-t border-white/10">
+            <div class="home-nav w-full bg-card/95 backdrop-blur-sm border-t border-card-alt shadow-lg">
                 <div class="flex justify-around items-center h-full px-4">
-                    <a @click="screen = 'achievements'" class="flex flex-col items-center gap-1 text-white/60 hover:text-primary transition-colors cursor-pointer" href="#">
+                    <a @click="screen = 'achievements'" class="flex flex-col items-center gap-1 text-text-secondary hover:text-primary-dark transition-colors cursor-pointer" href="#">
                         <span class="material-symbols-outlined">history</span>
                         <span class="text-xs font-medium">History</span>
                     </a>
-                    <a @click="screen = 'exercises'" class="flex flex-col items-center gap-1 text-white/60 hover:text-primary transition-colors cursor-pointer" href="#">
+                    <a @click="screen = 'exercises'" class="flex flex-col items-center gap-1 text-text-secondary hover:text-primary-dark transition-colors cursor-pointer" href="#">
                         <span class="material-symbols-outlined">fitness_center</span>
                         <span class="text-xs font-medium">Exercises</span>
                     </a>
@@ -78,62 +84,62 @@
         <!-- Workout Screen -->
         <div v-if="screen === 'workout'" class="app-container">
             <!-- Top App Bar -->
-            <div class="workout-header sticky top-0 z-10 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+            <div class="workout-header sticky top-0 z-10 flex items-center justify-between bg-background-light/90 backdrop-blur-sm">
                 <div class="size-10"></div>
-                <h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">{{ currentExercise.name }}</h1>
-                <button @click="cancelWorkout" class="cursor-pointer">
-                    <span class="material-symbols-outlined text-zinc-900 dark:text-white">close</span>
+                <h1 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">{{ currentExercise.name }}</h1>
+                <button @click="cancelWorkout" class="cursor-pointer size-10 flex items-center justify-center rounded-full hover:bg-card-alt transition-colors">
+                    <span class="material-symbols-outlined text-text-secondary">close</span>
                 </button>
             </div>
             <!-- Main Content Area -->
             <div class="workout-content">
                 <!-- Exercise Video -->
-                <div class="workout-video w-full bg-center bg-no-repeat bg-cover flex flex-col justify-center items-center overflow-hidden rounded-xl relative">
-                    <video :src="currentExercise.icon" autoplay loop muted class="w-full h-full object-cover rounded-xl"></video>
+                <div class="workout-video w-full bg-card-alt flex flex-col justify-center items-center overflow-hidden rounded-xl relative shadow-md">
+                    <video :src="currentExercise.icon" autoplay loop muted playsinline class="w-full h-full object-contain rounded-xl"></video>
                 </div>
                 <!-- Timer & Exercise Info -->
-                <div class="text-center mb-6">
-                    <div class="workout-timer text-white tracking-light font-bold leading-tight mb-2">{{ formatTime(timeRemaining) }}</div>
-                    <p class="text-white/70 text-base font-normal leading-normal mb-3">Current Exercise</p>
-                    <div class="text-white text-lg font-bold leading-tight">Next: {{ upcomingExercise.name }}</div>
+                <div class="text-center mb-4">
+                    <div class="workout-timer text-text-primary tracking-light font-bold leading-tight mb-2">{{ formatTime(timeRemaining) }}</div>
+                    <p class="text-text-secondary text-base font-normal leading-normal mb-2">Current Exercise</p>
+                    <div class="text-text-primary text-lg font-semibold leading-tight">Next: {{ upcomingExercise.name }}</div>
                 </div>
                 <!-- Progress Bar -->
-                <div class="rounded-full bg-primary/20 h-2 mb-6"><div class="h-2 rounded-full bg-primary" :style="{ width: progressWidth }"></div></div>
+                <div class="rounded-full bg-card-alt h-3 mb-4 shadow-inner"><div class="h-3 rounded-full bg-primary transition-all" :style="{ width: progressWidth }"></div></div>
                 <!-- Spacer -->
                 <div class="flex-grow"></div>
                 <!-- Controls -->
-                <div class="workout-controls flex justify-center items-center gap-4 py-6">
-                    <button @click="prevExercise" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-zinc-800 text-white font-bold leading-normal tracking-[0.015em] h-14 w-14 hover:text-black group" style="color: #ffffff !important;">
-                        <span class="material-symbols-outlined group-hover:text-black" style="font-size: 28px; color: #ffffff !important;">skip_previous</span>
+                <div class="workout-controls flex justify-center items-center gap-6 py-4">
+                    <button @click="prevExercise" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-card-alt text-text-secondary font-bold leading-normal tracking-[0.015em] h-14 w-14 hover:bg-accent-lavender hover:text-text-primary transition-colors shadow-md">
+                        <span class="material-symbols-outlined" style="font-size: 28px;">skip_previous</span>
                     </button>
-                    <button @click="togglePause" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-background-dark font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/30 h-16 w-16" style="color: #000000 !important;">
-                        <span class="material-symbols-outlined" style="font-size: 32px; color: #000000 !important;">{{ isPaused ? 'play_arrow' : 'pause' }}</span>
+                    <button @click="togglePause" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary hover:bg-primary-dark text-text-primary font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/40 h-16 w-16 transition-colors">
+                        <span class="material-symbols-outlined text-text-primary" style="font-size: 32px;">{{ isPaused ? 'play_arrow' : 'pause' }}</span>
                     </button>
-                    <button @click="nextExercise" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-zinc-800 text-white font-bold leading-normal tracking-[0.015em] h-14 w-14 hover:text-black group" style="color: #ffffff !important;">
-                        <span class="material-symbols-outlined group-hover:text-black" style="font-size: 28px; color: #ffffff !important;">skip_next</span>
+                    <button @click="nextExercise" class="flex cursor-pointer items-center justify-center overflow-hidden rounded-full bg-card-alt text-text-secondary font-bold leading-normal tracking-[0.015em] h-14 w-14 hover:bg-accent-lavender hover:text-text-primary transition-colors shadow-md">
+                        <span class="material-symbols-outlined" style="font-size: 28px;">skip_next</span>
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Congratulations Screen -->
-        <div v-if="screen === 'congratulations'" class="app-container bg-background-dark">
+        <div v-if="screen === 'congratulations'" class="app-container bg-background-light">
             <header class="congrats-header"></header>
-            <main class="flex flex-1 flex-col items-center justify-center text-center px-4">
-                <div class="flex items-center justify-center w-24 h-24 rounded-full bg-primary/20 mb-6">
-                    <span class="material-symbols-outlined text-primary text-6xl">check_circle</span>
+            <main class="flex flex-1 flex-col items-center justify-center text-center px-6">
+                <div class="flex items-center justify-center w-28 h-28 rounded-full bg-primary/30 mb-6 shadow-lg">
+                    <span class="material-symbols-outlined text-primary-dark text-6xl">check_circle</span>
                 </div>
-                <h1 class="text-background-light dark:text-white tracking-light text-4xl font-bold leading-tight">Workout Complete!</h1>
-                <p class="text-background-light/70 dark:text-white/70 text-base font-normal leading-normal mt-2">Another great session in the books. Keep up the momentum!</p>
+                <h1 class="text-text-primary tracking-light text-3xl font-bold leading-tight">Workout Complete!</h1>
+                <p class="text-text-secondary text-base font-normal leading-relaxed mt-3 max-w-xs">Another great session in the books. Keep up the momentum!</p>
             </main>
-            <footer class="w-full max-w-md mx-auto py-4">
+            <footer class="w-full max-w-md mx-auto py-4 px-4">
                 <div class="flex flex-col gap-3">
-                    <button @click="screen = 'achievements'" class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-5 bg-primary text-background-dark text-base font-bold leading-normal tracking-[0.015em] gap-2" style="color: #000000 !important;">
-                        <span class="material-symbols-outlined" style="color: #000000 !important;">history</span>
-                        <span class="truncate" style="color: #000000 !important;">Show History</span>
+                    <button @click="screen = 'achievements'" class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-5 bg-primary hover:bg-primary-dark text-text-primary text-base font-bold leading-normal tracking-[0.015em] gap-2 shadow-lg shadow-primary/30 transition-colors">
+                        <span class="material-symbols-outlined text-text-primary">history</span>
+                        <span class="truncate text-text-primary">Show History</span>
                     </button>
-                    <button @click="goBack" class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-5 bg-zinc-800 text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-black hover:text-black" style="color: #ffffff !important;">
-                        <span class="truncate" style="color: #ffffff !important;">Back to Home</span>
+                    <button @click="goBack" class="flex min-w-[84px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-full h-14 px-5 bg-card-alt text-text-secondary text-base font-bold leading-normal tracking-[0.015em] hover:bg-accent-lavender hover:text-text-primary transition-colors shadow-md">
+                        <span class="truncate">Back to Home</span>
                     </button>
                 </div>
             </footer>
@@ -141,195 +147,262 @@
 
         <!-- Exercises Screen -->
         <div v-if="screen === 'exercises'" class="app-container">
-            <header class="exercises-header sticky top-0 z-10 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm p-4">
-                <button @click="screen = 'home'" class="cursor-pointer">
-                    <span class="material-symbols-outlined text-zinc-900 dark:text-white">arrow_back</span>
+            <header class="exercises-header sticky top-0 z-10 flex items-center justify-between bg-background-light/90 backdrop-blur-sm p-4">
+                <button @click="screen = 'home'" class="cursor-pointer size-10 flex items-center justify-center rounded-full hover:bg-card-alt transition-colors">
+                    <span class="material-symbols-outlined text-text-secondary">arrow_back</span>
                 </button>
-                <h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Workout Overview</h1>
+                <h1 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Workout Overview</h1>
                 <div class="size-10"></div>
             </header>
-            <main class="exercises-main flex-1 overflow-y-auto space-y-2 px-4 py-3 pb-20">
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/jumpingjack.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+            <main class="exercises-main flex-1 overflow-y-auto space-y-3 px-4 py-3 pb-24">
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/jumpingjack.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Jumping Jacks</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Jumping Jacks</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Full Body Cardio</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-coral/30 px-3 py-1 text-xs font-medium text-text-primary">Full Body Cardio</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/wallsit.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/wallsit.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Wall Sit</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Wall Sit</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Leg Strength</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-lavender/30 px-3 py-1 text-xs font-medium text-text-primary">Leg Strength</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/pushup.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/pushup.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Push-ups</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Push-ups</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Upper Body</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-mint/30 px-3 py-1 text-xs font-medium text-text-primary">Upper Body</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/crunch.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/crunch.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Abdominal Crunch</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Abdominal Crunch</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Core Strength</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-primary/30 px-3 py-1 text-xs font-medium text-text-primary">Core Strength</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/squat.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/squat.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Squats</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Squats</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Leg Strength</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-lavender/30 px-3 py-1 text-xs font-medium text-text-primary">Leg Strength</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/plank.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/plank.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Plank</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Plank</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Core Stability</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-primary/30 px-3 py-1 text-xs font-medium text-text-primary">Core Stability</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/lunge.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/lunge.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Lunge</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Lunge</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Leg Strength</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-lavender/30 px-3 py-1 text-xs font-medium text-text-primary">Leg Strength</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/pushuprotation.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/pushuprotation.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Push-up Rotation</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Push-up Rotation</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Upper Body</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-mint/30 px-3 py-1 text-xs font-medium text-text-primary">Upper Body</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/sideplank.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/sideplank.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Side Plank</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Side Plank</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Core Stability</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-primary/30 px-3 py-1 text-xs font-medium text-text-primary">Core Stability</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/tricepdip.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/tricepdip.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Tricep Dip</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Tricep Dip</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Upper Body</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-mint/30 px-3 py-1 text-xs font-medium text-text-primary">Upper Body</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/chairStepUp.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/chairStepUp.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Chair Step Up</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Chair Step Up</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Leg Strength</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-lavender/30 px-3 py-1 text-xs font-medium text-text-primary">Leg Strength</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 rounded-lg bg-white p-3 dark:bg-zinc-800/30">
-                    <video src="shorts/jog.mp4" class="size-10 shrink-0 rounded-lg object-cover" muted autoplay loop></video>
+                <div class="flex gap-4 rounded-xl bg-card p-4 shadow-sm hover:shadow-md transition-shadow">
+                    <video src="shorts/jog.mp4" class="size-14 shrink-0 rounded-lg object-contain bg-card-alt shadow-sm" muted autoplay loop playsinline></video>
                     <div class="flex flex-1 flex-col gap-1">
                         <div class="flex items-center justify-between">
-                            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Jogging in Place</p>
-                            <p class="text-xs font-medium text-zinc-900 dark:text-white">30s</p>
+                            <p class="text-base font-semibold text-text-primary">Jogging in Place</p>
+                            <p class="text-sm font-medium text-text-secondary">30s</p>
                         </div>
-                        <div class="mt-0.5">
-                            <span class="inline-block rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">Cardio</span>
+                        <div class="mt-1">
+                            <span class="inline-block rounded-full bg-accent-coral/30 px-3 py-1 text-xs font-medium text-text-primary">Cardio</span>
                         </div>
                     </div>
                 </div>
             </main>
-            <div class="pointer-events-none fixed inset-x-0 bottom-0 z-10 p-4">
+            <div class="exercises-cta-container pointer-events-none fixed inset-x-0 bottom-0 z-10 p-4 pb-6">
                 <div class="pointer-events-auto flex items-center justify-center">
-                    <button @click="startWorkout" class="flex h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-primary px-6 text-base font-bold shadow-lg shadow-primary/30" style="color: #000000 !important;">
+                    <button @click="startWorkout" class="flex h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-primary hover:bg-primary-dark px-6 text-base font-bold shadow-lg shadow-primary/40 transition-colors text-text-primary">
                         Let's Go!
-                        <span class="material-symbols-outlined" style="color: #000000 !important;">arrow_forward</span>
+                        <span class="material-symbols-outlined text-text-primary">arrow_forward</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Achievements Screen -->
+        <!-- Achievements/History Screen -->
         <div v-if="screen === 'achievements'" class="app-container">
-            <header class="achievements-header sticky top-0 z-10 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm p-4">
-                <button @click="goBack" class="cursor-pointer">
-                    <span class="material-symbols-outlined text-zinc-900 dark:text-white">arrow_back</span>
+            <header class="achievements-header sticky top-0 z-10 flex items-center justify-between bg-background-light/90 backdrop-blur-sm p-4">
+                <button @click="goBack" class="cursor-pointer size-10 flex items-center justify-center rounded-full hover:bg-card-alt transition-colors">
+                    <span class="material-symbols-outlined text-text-secondary">arrow_back</span>
                 </button>
-                <h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Your Achievements</h1>
-                <button @click="clearAchievements" class="cursor-pointer">
-                    <span class="material-symbols-outlined text-zinc-900 dark:text-white">delete</span>
+                <h1 class="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Your Progress</h1>
+                <button @click="clearAchievements" class="cursor-pointer size-10 flex items-center justify-center rounded-full hover:bg-accent-coral/30 transition-colors">
+                    <span class="material-symbols-outlined text-text-secondary">delete</span>
                 </button>
             </header>
             <main class="achievements-main">
-                <div v-if="achievements.length === 0" class="flex flex-col items-center justify-center h-full">
-                    <span class="material-symbols-outlined text-zinc-400 dark:text-zinc-600 mb-4" style="font-size: 80px;">emoji_events</span>
-                    <p class="text-zinc-600 dark:text-zinc-400 text-lg text-center">No achievements yet. Keep working!</p>
-                </div>
-                <div v-else class="flex flex-col gap-4">
-                    <div v-for="(achievement, index) in achievements" :key="index" class="flex items-center gap-4 rounded-lg bg-zinc-100 dark:bg-[#152e1c] p-4">
-                        <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/20">
-                            <span class="material-symbols-outlined text-primary" style="font-size: 24px;">military_tech</span>
+                <div class="flex flex-col gap-5">
+                    <!-- Activity Heatmap -->
+                    <div class="flex flex-col gap-3 rounded-xl bg-card p-4 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-text-primary text-base font-bold">Activity Heatmap</h2>
+                            <span class="material-symbols-outlined text-text-secondary text-xl">calendar_month</span>
                         </div>
-                        <div class="flex-grow">
-                            <p class="text-zinc-900 dark:text-white font-semibold">{{ achievement }}</p>
-                            <p class="text-zinc-500 dark:text-zinc-400 text-sm">Achievement unlocked</p>
+                        <div class="heatmap-scroll overflow-x-auto pb-2 -mx-2 px-2">
+                            <div class="flex gap-1">
+                                <!-- Day labels -->
+                                <div class="flex flex-col gap-1 pr-1">
+                                    <div class="h-3 text-[10px] text-text-secondary"></div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">S</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">M</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">T</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">W</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">T</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">F</div>
+                                    <div class="h-3 text-[10px] text-text-secondary flex items-center">S</div>
+                                </div>
+                                <!-- Weeks -->
+                                <div v-for="(week, weekIndex) in heatmapData" :key="weekIndex" class="flex flex-col gap-1 items-center">
+                                    <div class="h-3 text-[10px] text-text-secondary">{{ week.monthLabel }}</div>
+                                    <div v-for="(day, dayIndex) in week.days" :key="dayIndex"
+                                         :class="['size-3 rounded-sm transition-colors', getDayClass(day)]"
+                                         :title="day ? day : ''">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <span class="material-symbols-outlined text-primary" style="font-size: 24px;">check_circle</span>
+                        <!-- Legend -->
+                        <div class="flex justify-end items-center gap-3 text-[10px] mt-1">
+                            <div class="flex items-center gap-1">
+                                <span class="text-text-secondary">Less</span>
+                                <div class="size-3 bg-card-alt rounded-sm"></div>
+                                <div class="size-3 bg-primary/30 rounded-sm"></div>
+                                <div class="size-3 bg-primary/60 rounded-sm"></div>
+                                <div class="size-3 bg-primary rounded-sm"></div>
+                                <span class="text-text-secondary">More</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1 rounded-xl p-4 bg-card shadow-sm">
+                            <p class="text-text-secondary text-sm font-medium">Total Workouts</p>
+                            <p class="text-text-primary text-2xl font-bold">{{ totalWorkouts }}</p>
+                        </div>
+                        <div class="flex flex-col gap-1 rounded-xl p-4 bg-primary/20 shadow-sm">
+                            <p class="text-primary-dark text-sm font-medium">Current Streak</p>
+                            <p class="text-text-primary text-2xl font-bold">{{ currentStreak }} {{ currentStreak === 1 ? 'Day' : 'Days' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Workout History -->
+                    <div class="flex flex-col gap-3">
+                        <h2 class="text-text-primary text-base font-bold">Workout History</h2>
+                        <div v-if="achievements.length === 0" class="flex flex-col items-center justify-center py-8">
+                            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-card-alt mb-4">
+                                <span class="material-symbols-outlined text-text-secondary" style="font-size: 32px;">fitness_center</span>
+                            </div>
+                            <p class="text-text-secondary text-sm text-center">No workouts yet</p>
+                            <p class="text-text-secondary/70 text-xs text-center mt-1">Complete your first workout!</p>
+                        </div>
+                        <div v-else class="flex flex-col gap-2">
+                            <div v-for="(workout, index) in recentWorkouts" :key="index"
+                                 class="flex items-center gap-3 rounded-xl p-3 bg-card shadow-sm">
+                                <div class="flex items-center justify-center size-10 bg-primary/20 rounded-lg shrink-0">
+                                    <span class="material-symbols-outlined text-primary-dark" style="font-size: 20px;">fitness_center</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-text-primary text-sm">{{ formatWorkoutDate(workout) }}</p>
+                                    <p class="text-xs text-text-secondary">7 Minute Workout</p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="font-semibold text-text-primary text-sm">7 min</p>
+                                    <p class="text-xs text-text-secondary">~35 kcal</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>

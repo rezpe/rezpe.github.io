@@ -79,6 +79,91 @@ const app = Vue.createApp({
             const date = new Date();
             return date.toISOString().split('T')[0];
         },
+        totalWorkouts() {
+            return this.achievements.length;
+        },
+        currentStreak() {
+            if (this.achievements.length === 0) return 0;
+
+            const sortedDates = [...this.achievements].sort().reverse();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let streak = 0;
+            let checkDate = new Date(today);
+
+            // Check if worked out today or yesterday to start streak
+            const todayStr = today.toISOString().split('T')[0];
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            if (!sortedDates.includes(todayStr) && !sortedDates.includes(yesterdayStr)) {
+                return 0;
+            }
+
+            // Start from today or yesterday
+            if (!sortedDates.includes(todayStr)) {
+                checkDate = yesterday;
+            }
+
+            // Count consecutive days
+            while (true) {
+                const dateStr = checkDate.toISOString().split('T')[0];
+                if (sortedDates.includes(dateStr)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
+        },
+        recentWorkouts() {
+            return [...this.achievements].sort().reverse().slice(0, 10);
+        },
+        heatmapData() {
+            const weeks = [];
+            const today = new Date();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            // Go back 16 weeks (about 4 months)
+            const startDate = new Date(today);
+            startDate.setDate(startDate.getDate() - (16 * 7));
+            // Align to Sunday
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+
+            let currentDate = new Date(startDate);
+            let lastMonth = -1;
+
+            for (let week = 0; week < 17; week++) {
+                const weekData = {
+                    monthLabel: '',
+                    days: []
+                };
+
+                for (let day = 0; day < 7; day++) {
+                    if (currentDate <= today) {
+                        const dateStr = currentDate.toISOString().split('T')[0];
+                        weekData.days.push(dateStr);
+
+                        // Add month label on first day of month or first week
+                        if (day === 0 && currentDate.getMonth() !== lastMonth) {
+                            weekData.monthLabel = months[currentDate.getMonth()];
+                            lastMonth = currentDate.getMonth();
+                        }
+                    } else {
+                        weekData.days.push(null);
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                weeks.push(weekData);
+            }
+
+            return weeks;
+        },
     },
     methods: {
         startWorkout() {
@@ -89,6 +174,7 @@ const app = Vue.createApp({
         },
         goToAchievements() {
             this.screen = 'achievements';
+            this.scrollHeatmapToEnd();
         },
         goBack() {
             this.screen = 'home';
@@ -163,6 +249,48 @@ const app = Vue.createApp({
             this.currentExerciseIndex = 0;
             this.timeRemaining = this.exercises[0].duration;
             this.screen = 'home';
+        },
+        getDayClass(dateStr) {
+            if (!dateStr) return 'bg-transparent';
+
+            const count = this.achievements.filter(d => d === dateStr).length;
+
+            if (count === 0) return 'bg-card-alt';
+            if (count === 1) return 'bg-primary/50';
+            return 'bg-primary';
+        },
+        formatWorkoutDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const dateOnly = new Date(date);
+            dateOnly.setHours(0, 0, 0, 0);
+
+            if (dateOnly.getTime() === today.getTime()) {
+                return 'Today';
+            } else if (dateOnly.getTime() === yesterday.getTime()) {
+                return 'Yesterday';
+            } else {
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+        },
+        scrollHeatmapToEnd() {
+            this.$nextTick(() => {
+                const heatmap = document.querySelector('.heatmap-scroll');
+                if (heatmap) {
+                    heatmap.scrollLeft = heatmap.scrollWidth;
+                }
+            });
+        }
+    },
+    watch: {
+        screen(newScreen) {
+            if (newScreen === 'achievements') {
+                this.scrollHeatmapToEnd();
+            }
         }
     }
 });
