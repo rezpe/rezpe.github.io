@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 340" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <style>
+      .track-label { fill: #888; font-size: 10px; font-weight: 500; }
+      .scene-text { fill: #ccc; font-size: 8px; font-weight: 500; }
+      .info-text { fill: #999; font-size: 9px; }
+      .title-text { fill: #e0e0e0; font-size: 16px; font-weight: 300; }
+      .subtitle-text { fill: #666; font-size: 10px; }
+      .scene-num { fill: #aaa; font-size: 8px; }
+      .duration-text { fill: #777; font-size: 8px; }
+      .legend-text { fill: #888; font-size: 9px; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="340" fill="#0f0f0f" rx="6"/>
+
+  <!-- Title -->
+  <text x="24" y="28" class="title-text">Composition Timeline</text>
+  <text x="24" y="42" class="subtitle-text">9 scenes | ~77s total | FFmpeg + Remotion</text>
+
+  <!--
+    Layout: tracks x=108..876 (768px wide), gap=2px between blocks
+    Total duration: 77.004s. Scale: 768 / 77.004 ~ 9.974 px/s
+
+    Scene positions (video = narration start, aligned):
+    Title:  2.000s   w=20   x=108  end=128
+    S1:    11.584s   w=115  x=130  end=245   audio=9.584s(96px) + silence 2s(19px)
+    S2:     6.334s   w=63   x=247  end=310   audio=4.334s(43px) + silence 2s(20px)
+    S3:     8.834s   w=88   x=312  end=400   audio=6.834s(68px) + silence 2s(20px)
+    S4:     8.209s   w=82   x=402  end=484   audio=6.209s(62px) + silence 2s(20px)
+    S5:     8.917s   w=89   x=486  end=575   audio=6.917s(69px) + silence 2s(20px)
+    S6:     7.125s   w=71   x=577  end=648   audio=5.125s(51px) + silence 2s(20px)
+    S7:     9.584s   w=96   x=650  end=746   audio=7.584s(76px) + silence 2s(20px)
+    S8:     4.125s   w=41   x=748  end=789   audio=2.125s(21px) + silence 2s(20px)
+    S9:    10.292s   w=83   x=791  end=874   audio=8.292s(83px) no trailing silence
+  -->
+
+  <!-- === VIDEO TRACK === -->
+  <text x="24" y="74" class="track-label">Video</text>
+  <rect x="108" y="62" width="20" height="20" rx="2" fill="#5a4a2d"/>
+  <text x="118" y="75" class="scene-text" fill="#d4af37" text-anchor="middle">T</text>
+  <rect x="130" y="62" width="115" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="188" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S1 Wake Up</text>
+  <rect x="247" y="62" width="63" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="279" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S2</text>
+  <rect x="312" y="62" width="88" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="356" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S3</text>
+  <rect x="402" y="62" width="82" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="443" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S4</text>
+  <rect x="486" y="62" width="89" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="531" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S5</text>
+  <rect x="577" y="62" width="71" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="613" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S6</text>
+  <rect x="650" y="62" width="96" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="698" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S7</text>
+  <rect x="748" y="62" width="41" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="769" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S8</text>
+  <rect x="791" y="62" width="83" height="20" rx="2" fill="#2d5a3d"/>
+  <text x="833" y="75" class="scene-text" fill="#8fbc8f" text-anchor="middle">S9</text>
+
+  <!-- === NARRATION TRACK === -->
+  <!-- Each narration block starts at the SAME x as its video block -->
+  <text x="24" y="104" class="track-label">Narration</text>
+  <text x="24" y="114" class="duration-text">(ElevenLabs)</text>
+
+  <!-- S1: starts x=130, audio 96px + silence 19px = 115px -->
+  <rect x="130" y="92" width="96" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="178" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S1</text>
+  <rect x="226" y="92" width="19" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S2: starts x=247, audio 43px + silence 20px = 63px -->
+  <rect x="247" y="92" width="43" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="269" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S2</text>
+  <rect x="290" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S3: starts x=312, audio 68px + silence 20px = 88px -->
+  <rect x="312" y="92" width="68" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="346" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S3</text>
+  <rect x="380" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S4: starts x=402, audio 62px + silence 20px = 82px -->
+  <rect x="402" y="92" width="62" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="433" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S4</text>
+  <rect x="464" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S5: starts x=486, audio 69px + silence 20px = 89px -->
+  <rect x="486" y="92" width="69" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="521" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S5</text>
+  <rect x="555" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S6: starts x=577, audio 51px + silence 20px = 71px -->
+  <rect x="577" y="92" width="51" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="603" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S6</text>
+  <rect x="628" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S7: starts x=650, audio 76px + silence 20px = 96px -->
+  <rect x="650" y="92" width="76" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="688" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S7</text>
+  <rect x="726" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S8: starts x=748, audio 21px + silence 20px = 41px -->
+  <rect x="748" y="92" width="21" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="759" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">8</text>
+  <rect x="769" y="92" width="20" height="20" rx="2" fill="#2a2a3a" opacity="0.6"/>
+
+  <!-- S9: starts x=791, audio 83px, no trailing silence (last scene) -->
+  <rect x="791" y="92" width="83" height="20" rx="2" fill="#5a3d5a"/>
+  <text x="833" y="105" class="scene-text" fill="#dda0dd" text-anchor="middle">S9</text>
+
+  <!-- === SUBTITLES TRACK === -->
+  <text x="24" y="137" class="track-label">Subtitles</text>
+  <rect x="130" y="125" width="744" height="20" rx="2" fill="#3d4a5a"/>
+  <text x="502" y="138" class="scene-text" fill="#87ceeb" text-anchor="middle">Whisper word timestamps + Remotion overlay + FFmpeg chromakey</text>
+
+  <!-- === MUSIC TRACK === -->
+  <text x="24" y="167" class="track-label">Music</text>
+  <rect x="108" y="155" width="766" height="20" rx="2" fill="#4a3d2d"/>
+  <text x="491" y="168" class="scene-text" fill="#d4a574" text-anchor="middle">Background music (15% volume)</text>
+
+  <!-- Vertical alignment guides (faint dashed lines) -->
+  <line x1="130" y1="60" x2="130" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="247" y1="60" x2="247" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="312" y1="60" x2="312" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="402" y1="60" x2="402" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="486" y1="60" x2="486" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="577" y1="60" x2="577" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="650" y1="60" x2="650" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="748" y1="60" x2="748" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+  <line x1="791" y1="60" x2="791" y2="180" stroke="#222" stroke-width="0.5" stroke-dasharray="2,4"/>
+
+  <!-- Scene markers -->
+  <line x1="108" y1="182" x2="876" y2="182" stroke="#333" stroke-width="0.5"/>
+  <text x="118" y="194" class="scene-num" text-anchor="middle">T</text>
+  <text x="188" y="194" class="scene-num" text-anchor="middle">1</text>
+  <text x="279" y="194" class="scene-num" text-anchor="middle">2</text>
+  <text x="356" y="194" class="scene-num" text-anchor="middle">3</text>
+  <text x="443" y="194" class="scene-num" text-anchor="middle">4</text>
+  <text x="531" y="194" class="scene-num" text-anchor="middle">5</text>
+  <text x="613" y="194" class="scene-num" text-anchor="middle">6</text>
+  <text x="698" y="194" class="scene-num" text-anchor="middle">7</text>
+  <text x="769" y="194" class="scene-num" text-anchor="middle">8</text>
+  <text x="833" y="194" class="scene-num" text-anchor="middle">9</text>
+
+  <!-- Info boxes -->
+  <rect x="24" y="210" width="420" height="52" rx="4" fill="#151515" stroke="#3d4a5a" stroke-width="1"/>
+  <rect x="24" y="210" width="3" height="52" rx="1" fill="#3d4a5a"/>
+  <text x="36" y="228" class="track-label" fill="#87ceeb">Audio Pipeline</text>
+  <text x="36" y="242" class="info-text">ElevenLabs TTS (Antoni voice, free tier) + 2s silence padding per scene</text>
+  <text x="36" y="254" class="info-text">Whisper extracts word timestamps for real-time subtitle highlighting</text>
+
+  <rect x="456" y="210" width="420" height="52" rx="4" fill="#151515" stroke="#2d5a3d" stroke-width="1"/>
+  <rect x="456" y="210" width="3" height="52" rx="1" fill="#2d5a3d"/>
+  <text x="468" y="228" class="track-label" fill="#8fbc8f">Video Pipeline</text>
+  <text x="468" y="242" class="info-text">Imagen generates scene images with character/environment references</text>
+  <text x="468" y="254" class="info-text">Veo 3.1 animates each image into 8s clips, slowed/trimmed to match audio</text>
+
+  <!-- Legend -->
+  <rect x="24" y="275" width="852" height="46" rx="4" fill="#111"/>
+  <rect x="40" y="290" width="12" height="12" rx="2" fill="#5a4a2d"/>
+  <text x="58" y="300" class="legend-text">Title (Remotion)</text>
+  <rect x="155" y="290" width="12" height="12" rx="2" fill="#2d5a3d"/>
+  <text x="173" y="300" class="legend-text">Video (Veo 3.1)</text>
+  <rect x="270" y="290" width="12" height="12" rx="2" fill="#5a3d5a"/>
+  <text x="288" y="300" class="legend-text">Narration (ElevenLabs)</text>
+  <rect x="420" y="290" width="12" height="12" rx="2" fill="#2a2a3a"/>
+  <text x="438" y="300" class="legend-text">2s silence</text>
+  <rect x="510" y="290" width="12" height="12" rx="2" fill="#3d4a5a"/>
+  <text x="528" y="300" class="legend-text">Subtitles (Whisper + Remotion)</text>
+  <rect x="690" y="290" width="12" height="12" rx="2" fill="#4a3d2d"/>
+  <text x="708" y="300" class="legend-text">Music (15%)</text>
+</svg>
