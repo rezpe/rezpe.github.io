@@ -13,6 +13,8 @@ The topic I chose was the daily life of a medieval scribe. A 12th-century Benedi
 
 This article is the result. Not just what I built, but what I learned about the actual shape of AI-assisted video production once theory meets reality.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ZrOwxQgAHhc?si=sTSaHexbeoh9ORoS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## The Research Challenge
 
 The goal was concrete: produce a **one-minute animated educational video** using AI tools wherever possible, with a human (me) directing the process through an AI coding agent (Claude Opus) that orchestrates the tools via MCP integrations.
