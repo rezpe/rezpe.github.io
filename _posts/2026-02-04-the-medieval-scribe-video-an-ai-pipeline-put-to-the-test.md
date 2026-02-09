@@ -11,7 +11,7 @@ That article ended with a challenge. Not to the reader, to myself. Could I actua
 
 The topic I chose was the daily life of a medieval scribe. A 12th-century Benedictine monk who copies manuscripts in a monastery scriptorium. It is historically specific enough to test whether AI can handle period-accurate visuals, and visually rich enough for nine distinct scenes: from the pre-dawn bell to nightfall.
 
-This article is the result. Not just what I built, but what I learned about the actual shape of AI-assisted video production once theory meets reality.
+This article is the result. Not just what I built, but what I learned about the actual shape of AI-assisted video production once theory meets reality. The full code of this experiment is in a [public repository](https://www.github.com/rezpe/EduVideoCreation)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/ZrOwxQgAHhc?si=sTSaHexbeoh9ORoS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
