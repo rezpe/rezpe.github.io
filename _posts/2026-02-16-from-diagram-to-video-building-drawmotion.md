@@ -19,7 +19,7 @@ Green marker on a whiteboard, five boxes connected by arrows. Upload Image. Sele
 
 ## The Diagram Becomes a UI That Collects What the Code Needs
 
-![drawMotion UI walkthrough](../images/from-diagram-to-video-building-drawmotion/drawmotion-ui.gif)
+![drawMotion UI walkthrough](/assets/images/from-diagram-to-video-building-drawmotion/drawmotion-ui.gif)
 
 Each box in the sketch became a step in the UI that collects exactly the human inputs that step requires.
 
