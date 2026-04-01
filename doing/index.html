@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #app { height: 100%; }
+    .task-list { scrollbar-width: thin; scrollbar-color: #e5e7eb transparent; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<div id="app" class="flex flex-col h-screen w-screen">
+
+  <!-- TOP: input area -->
+  <div class="flex flex-col gap-4 p-6 md:p-10 bg-white shadow-md"
+       :class="recording ? 'border-b-4 border-red-400' : 'border-b-4 border-blue-400'">
+
+    <div class="flex items-baseline gap-4">
+      <h1 class="text-4xl md:text-5xl font-black text-gray-800 tracking-tight">Doing</h1>
+      <span v-if="recording" class="text-lg md:text-xl text-red-400 font-semibold animate-pulse">
+        ● since {{ formatTime(activeStart) }} · {{ elapsed }}m
+      </span>
+    </div>
+
+    <textarea
+      v-model="current"
+      :disabled="recording"
+      rows="3"
+      placeholder="What are you doing right now?"
+      class="w-full resize-none rounded-2xl border-2 border-gray-200 p-4 text-2xl md:text-3xl leading-snug focus:outline-none focus:border-blue-400 transition disabled:bg-gray-50 disabled:text-gray-600 disabled:border-gray-100"
+    ></textarea>
+
+    <div class="flex gap-3">
+      <button
+        v-if="!recording"
+        @click="startTask"
+        :disabled="!current.trim()"
+        class="flex items-center gap-3 bg-blue-500 hover:bg-blue-600 active:scale-95 disabled:opacity-30 text-white font-bold text-xl md:text-2xl px-8 py-4 rounded-2xl transition"
+      >
+        <span class="w-4 h-4 rounded-full bg-white inline-block"></span>
+        Record
+      </button>
+
+      <button
+        v-else
+        @click="stopTask"
+        class="flex items-center gap-3 bg-red-500 hover:bg-red-600 active:scale-95 text-white font-bold text-xl md:text-2xl px-8 py-4 rounded-2xl transition"
+      >
+        <span class="w-4 h-4 rounded bg-white inline-block"></span>
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- BOTTOM: log -->
+  <div class="flex-1 overflow-hidden flex flex-col">
+
+    <!-- Bulk edit mode -->
+    <div v-if="editing" class="flex-1 flex flex-col gap-4 p-6 md:p-10 overflow-auto">
+      <p class="text-base text-gray-400">One entry per line: <code class="bg-gray-200 px-2 py-0.5 rounded text-sm">task name | start | end</code></p>
+      <textarea
+        v-model="bulkText"
+        class="flex-1 min-h-0 resize-none rounded-2xl border-2 border-gray-200 p-4 text-base md:text-lg font-mono focus:outline-none focus:border-blue-400 transition"
+      ></textarea>
+      <div class="flex gap-3">
+        <button @click="saveBulk" class="bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-lg md:text-xl px-6 py-3 rounded-2xl transition">Save</button>
+        <button @click="editing = false" class="bg-gray-200 hover:bg-gray-300 active:scale-95 text-gray-700 font-bold text-lg md:text-xl px-6 py-3 rounded-2xl transition">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Task list -->
+    <div v-else-if="tasks.length" class="flex-1 overflow-y-auto task-list p-6 md:p-10 flex flex-col gap-3">
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-sm font-semibold text-gray-400 uppercase tracking-widest">Log</span>
+        <button @click="openBulkEdit" title="Bulk edit" class="text-2xl text-gray-300 hover:text-gray-600 transition active:scale-90">✏️</button>
+      </div>
+
+      <div
+        v-for="task in tasksReversed"
+        :key="task.id"
+        class="bg-white rounded-2xl px-6 py-4 flex flex-col gap-1 shadow-sm"
+      >
+        <p class="text-xl md:text-2xl font-semibold text-gray-800 leading-snug">{{ task.name }}</p>
+        <p class="text-base md:text-lg text-gray-400">
+          {{ formatTime(task.start) }}
+          <span v-if="task.end"> → {{ formatTime(task.end) }} &nbsp;·&nbsp; <span class="text-gray-500 font-medium">{{ duration(task.start, task.end) }}</span></span>
+          <span v-else class="text-blue-400 font-medium"> · ongoing</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div v-else class="flex-1 flex items-center justify-center text-gray-300 text-2xl md:text-3xl font-medium select-none">
+      No tasks yet
+    </div>
+
+  </div>
+</div>
+
+<script>
+const { createApp, ref, computed } = Vue;
+
+createApp({
+  setup() {
+    const STORAGE_KEY = 'doing_tasks';
+
+    const current    = ref('');
+    const recording  = ref(false);
+    const activeStart = ref(null);
+    const editing    = ref(false);
+    const bulkText   = ref('');
+
+    const tasks = ref(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+    const persist = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks.value));
+
+    const elapsed = ref(0);
+    let timer = null;
+    const startTimer = () => {
+      elapsed.value = 0;
+      timer = setInterval(() => {
+        elapsed.value = Math.floor((Date.now() - new Date(activeStart.value)) / 60000);
+      }, 10000);
+    };
+    const stopTimer = () => { clearInterval(timer); timer = null; elapsed.value = 0; };
+
+    const tasksReversed = computed(() => [...tasks.value].reverse());
+
+    function startTask() {
+      if (!current.value.trim()) return;
+      recording.value = true;
+      activeStart.value = new Date().toISOString();
+      startTimer();
+    }
+
+    function stopTask() {
+      tasks.value.push({
+        id: Date.now(),
+        name: current.value.trim(),
+        start: activeStart.value,
+        end: new Date().toISOString(),
+      });
+      persist();
+      current.value = '';
+      recording.value = false;
+      activeStart.value = null;
+      stopTimer();
+    }
+
+    function formatTime(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function duration(start, end) {
+      const m = Math.floor((new Date(end) - new Date(start)) / 60000);
+      if (m < 60) return `${m}m`;
+      return `${Math.floor(m / 60)}h ${m % 60}m`;
+    }
+
+    function openBulkEdit() {
+      bulkText.value = tasks.value
+        .map(t => `${t.name} | ${t.start} | ${t.end ?? ''}`)
+        .join('\n');
+      editing.value = true;
+    }
+
+    function saveBulk() {
+      const lines = bulkText.value.split('\n').filter(l => l.trim());
+      tasks.value = lines.map((line, i) => {
+        const [name, start, end] = line.split('|').map(s => s.trim());
+        return {
+          id: Date.now() + i,
+          name: name || '(untitled)',
+          start: start || new Date().toISOString(),
+          end: end || null,
+        };
+      });
+      persist();
+      editing.value = false;
+    }
+
+    return {
+      current, recording, activeStart, elapsed, editing, bulkText,
+      tasks, tasksReversed,
+      startTask, stopTask,
+      formatTime, duration,
+      openBulkEdit, saveBulk,
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
