@@ -1,0 +1,11 @@
+- { name: Doing, url: /doing/, icon: ✅, color: from-emerald-300 to-emerald-500 }
+- { name: 3D Record, url: /3drecord/, icon: 💿, color: from-sky-300 to-blue-500 }
+- { name: 7mn Workout, url: /7mnWorkout/, icon: 🏋️, color: from-teal-200 to-teal-400 }
+- { name: Calorie Goal, url: /calorieGoal/, icon: 🥗, color: from-orange-300 to-orange-500 }
+- { name: Editor, url: /editorp/, icon: ✏️, color: from-violet-300 to-purple-500 }
+- { name: Fair Trip, url: /fairtrip/, icon: ✈️, color: from-cyan-200 to-cyan-400 }
+- { name: LinCal, url: /lincal/, icon: 🗓️, color: from-sky-300 to-blue-500 }
+- { name: Notes, url: /notes/, icon: 📝, color: from-amber-200 to-amber-400 }
+- { name: QR Code, url: /qrcode/, icon: 🤳, color: from-rose-300 to-rose-400 }
+- { name: Recorder, url: /recorder/, icon: 🎙️, color: from-red-400 to-red-500 }
+- { name: Radiator Sim, url: /radiatorSim/, icon: 🌡️, color: from-orange-300 to-orange-500 }
